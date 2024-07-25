@@ -1,7 +1,8 @@
-import 'styles/App.css';
-import Header from 'components/Header';
-import Navbar from 'components/Navbar';
-import Profile from 'components/Profile';
+import './App.css';
+import Header from 'components/Header/Header';
+import Navbar from 'components/Navbar/Navbar';
+import Profile from 'components/Profile/Profile';
+import Chats from 'components/Chats/Chats';
 
 
 const App = () => {
@@ -9,7 +10,9 @@ const App = () => {
     <div className='app-wrapper'>
         <Header />
         <Navbar />
-        <Profile />
+      <div className='app-wrapper-content'>
+        <Chats />
+      </div>
     </div>
   );
 }

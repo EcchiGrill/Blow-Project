@@ -1,0 +1,18 @@
+.chats {
+    display: grid;
+    grid-template-areas: "list window";
+    grid-template-columns: 0.5fr 1fr;
+}
+
+.chatList {
+    grid-area: list;
+}
+
+.chatWindow {
+    grid-area: window;
+}
+
+.avatar {
+    width: 80px;
+    height: 80px;
+}
