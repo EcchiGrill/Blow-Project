@@ -1,0 +1,11 @@
+.music {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-columns: 0.25fr 1fr;
+}
+
+.nav {
+    display: grid;
+    grid-auto-flow: column;
+    list-style-type: none;
+}
