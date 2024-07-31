@@ -1,18 +1,8 @@
 import styles from "./MyPosts.module.css";
-import Post from "./Post/Post";
+import Post from "components/Profile/MyPosts/Post/Post";
 
-const MyPosts = () => {
-  let postsData = [
-    { id: 1, text: "This is my first post!", likeCount: 5 },
-    {
-      id: 2,
-      text: "No bitches??",
-      img: "https://i.pinimg.com/736x/45/7f/5c/457f5c7f1435df48e9c7765eda8c1748.jpg",
-      likeCount: 13,
-    },
-  ];
-
-  let postsElements = postsData.map((post) => {
+const MyPosts = (props) => {
+  let postsElements = props.posts.map((post) => {
     return <Post text={post.text} img={post.img} likeCount={post.likeCount} />;
   });
 

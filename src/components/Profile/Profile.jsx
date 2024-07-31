@@ -2,11 +2,11 @@ import MyPosts from "components/Profile/MyPosts/MyPosts";
 import styles from "./Profile.module.css";
 import ProfileInfo from "components/Profile/ProfileInfo/ProfileInfo";
 
-const Profile = () => {
+const Profile = (props) => {
   return (
     <main>
       <ProfileInfo />
-      <MyPosts />
+      <MyPosts posts={props.posts} />
     </main>
   );
 };

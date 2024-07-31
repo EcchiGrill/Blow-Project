@@ -1,42 +1,12 @@
-import { NavLink } from "react-router-dom";
 import styles from "./Chats.module.css";
+import Chat from "components/Chats/Chat/Chat";
+import Message from "components/Chats/Message/Message";
 
-const Chat = (props) => {
-  let path = `/chats/${props.id}`;
-
-  return (
-    <li className={styles.chat}>
-      <NavLink
-        to={path}
-        className={({ isActive }) => (isActive ? styles.active : styles.chat)}
-      >
-        {props.username}
-      </NavLink>
-    </li>
-  );
-};
-
-const Message = (props) => {
-  return <div className={styles.message}>{props.text}</div>;
-};
-
-const Chats = () => {
-  let chatsData = [
-    { id: 1, username: "Matr1x" },
-    { id: 2, username: "Spike Spiegel" },
-    { id: 3, username: "John Doe" },
-  ];
-
-  let messagesData = [
-    { id: 1, text: "Hi John Doe!" },
-    { id: 2, text: "Rofls" },
-    { id: 3, text: "Fortnite balls" },
-  ];
-
-  let chatsElements = chatsData.map((chat) => {
+const Chats = (props) => {
+  let chatsElements = props.chats.map((chat) => {
     return <Chat id={chat.id} username={chat.username} />;
   });
-  let messagesElements = messagesData.map((msg) => {
+  let messagesElements = props.messages.map((msg) => {
     return <Message text={msg.text} />;
   });
 
