@@ -1,18 +1,35 @@
 .chats {
-    display: grid;
-    grid-template-areas: "list window";
-    grid-template-columns: 0.5fr 1fr;
+  display: grid;
+  grid-template-columns: 1fr 5fr;
 }
 
-.chatList {
-    grid-area: list;
+.chatsList {
+  list-style-type: none;
+
+  .chat a {
+    color: white;
+    text-decoration: none;
+  }
+
+  .chat a.active {
+    color: darkblue;
+  }
 }
 
 .chatWindow {
-    grid-area: window;
+  border: 1px solid black;
+}
+
+.profile {
+  display: flex;
+  gap: 10px;
+}
+
+.messages {
+  margin-top: 20px;
 }
 
 .avatar {
-    width: 80px;
-    height: 80px;
+  width: 80px;
+  height: 80px;
 }

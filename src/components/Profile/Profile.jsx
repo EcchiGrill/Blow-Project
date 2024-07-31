@@ -1,18 +1,14 @@
-import MyPosts from 'components/MyPosts/MyPosts';
-import styles from './Profile.module.css'
+import MyPosts from "components/Profile/MyPosts/MyPosts";
+import styles from "./Profile.module.css";
+import ProfileInfo from "components/Profile/ProfileInfo/ProfileInfo";
 
 const Profile = () => {
-    return (
-        <main>
-        <div>
-          <img src="https://placehold.co/800x400" alt="" />
-        </div>
-        <div>
-          ava + description
-        </div>
-        <MyPosts />
-      </main>
-    );
-} 
+  return (
+    <main>
+      <ProfileInfo />
+      <MyPosts />
+    </main>
+  );
+};
 
 export default Profile;
