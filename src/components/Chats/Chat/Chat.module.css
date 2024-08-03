@@ -1,0 +1,43 @@
+.chat {
+  display: flex;
+  place-items: center;
+  gap: 20px;
+  margin-bottom: 10px;
+
+  a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+  }
+
+  a.active {
+    color: darkblue;
+  }
+}
+
+.avatarWrapper {
+  display: flex;
+  flex-direction: row;
+}
+
+.avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+}
+
+.status {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  margin-left: -1.2rem;
+  border: 1px solid #fff;
+}
+
+.online {
+  background: green;
+}
+
+.offline {
+  background: red;
+}

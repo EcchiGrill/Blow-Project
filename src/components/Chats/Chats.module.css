@@ -1,19 +1,10 @@
 .chats {
   display: grid;
-  grid-template-columns: 1fr 5fr;
+  grid-template-columns: 1fr 10fr;
 }
 
 .chatsList {
   list-style-type: none;
-
-  .chat a {
-    color: white;
-    text-decoration: none;
-  }
-
-  .chat a.active {
-    color: darkblue;
-  }
 }
 
 .chatWindow {
@@ -22,14 +13,37 @@
 
 .profile {
   display: flex;
+  border-bottom: 1px solid black;
   gap: 10px;
 }
 
 .messages {
-  margin-top: 20px;
+  padding: 5px;
+}
+
+.avatarWrapper {
+  display: flex;
+  flex-direction: row;
 }
 
 .avatar {
   width: 80px;
   height: 80px;
+  border-radius: 50%;
+}
+
+.status {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  margin-left: -2rem;
+  border: 1px solid #fff;
+}
+
+.online {
+  background: green;
+}
+
+.offline {
+  background: red;
 }

@@ -2,7 +2,7 @@ import styles from "./MyPosts.module.css";
 import Post from "components/Profile/MyPosts/Post/Post";
 
 const MyPosts = (props) => {
-  let postsElements = props.posts.map((post) => {
+  let postsElements = props.data.posts.map((post) => {
     return <Post text={post.text} img={post.img} likeCount={post.likeCount} />;
   });
 

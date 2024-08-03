@@ -16,10 +16,13 @@ const App = (props) => {
         <Navbar />
         <div className="app-wrapper-content">
           <Routes>
-            <Route path="/profile" element={<Profile posts={props.posts} />} />
+            <Route
+              path="/profile"
+              element={<Profile data={props.state.profilePage} />}
+            />
             <Route
               path="/chats/*"
-              element={<Chats chats={props.chats} messages={props.messages} />}
+              element={<Chats data={props.state.chatsPage} />}
             />
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/music" element={<Music />} />
