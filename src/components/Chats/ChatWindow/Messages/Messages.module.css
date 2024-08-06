@@ -6,6 +6,8 @@
 }
 
 .messageContent {
+  display: flex;
+  flex-direction: column;
   max-width: 35rem;
   padding: 1rem 1.25rem;
   border-radius: 1.25rem;
@@ -37,7 +39,7 @@
 
 .incomeColor {
   background: #f5f6fa;
-  color: #8094ae;
+  color: #788697;
 }
 
 .outcomeColor {

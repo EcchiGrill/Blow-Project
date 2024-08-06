@@ -1,0 +1,116 @@
+.chatWindow {
+  border: 1px solid black;
+}
+
+.profile {
+  display: flex;
+  border-bottom: 1px solid black;
+  gap: 10px;
+}
+
+.messages {
+  padding: 5px;
+}
+
+.avatarWrapper {
+  display: flex;
+  flex-direction: row;
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+}
+
+.status {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  margin-left: -2rem;
+  border: 1px solid #fff;
+}
+
+.online {
+  background: green;
+}
+
+.offline {
+  background: gray;
+}
+
+.messageFooter {
+  display: grid;
+  height: 5rem;
+  grid-template-columns: 0.6fr 13fr 0.7fr 1fr;
+  border-top: 1px solid black;
+  padding-inline: 10px;
+  background: var(--main-color);
+}
+
+.item {
+  display: flex;
+  place-items: center;
+  place-content: center;
+}
+
+.item button {
+  width: 50px;
+  height: 50px;
+  font-size: var(--input-font-size);
+  cursor: pointer;
+  border-radius: 50%;
+  border: 2px solid #788697;
+}
+
+.send button {
+  z-index: 1;
+  position: relative;
+  border-radius: 5%;
+  width: 150px;
+  outline: none;
+  border: none;
+  overflow: hidden;
+  transition: color 0.4s ease-in-out;
+}
+
+.send button::before {
+  content: "";
+  z-index: -1;
+  position: absolute;
+  top: 100%;
+  right: 100%;
+  width: 1em;
+  height: 1em;
+  border-radius: 25%;
+  background: #665dfe;
+  transform-origin: left;
+  transform: translate3d(50%, -50%, 0) scale3d(0, 0, 0);
+  transition: transform 0.45s ease-in-out;
+}
+
+.send button:hover {
+  cursor: pointer;
+}
+
+.send button:hover::before {
+  transform: translate3d(50%, -50%, 0) scale3d(15, 15, 15);
+}
+
+.messageInput {
+  height: auto;
+  resize: none;
+  padding: 1.5rem 6.5rem 0rem 1rem;
+  cursor: text;
+  color: #fff;
+  font-size: var(--input-font-size);
+  background-color: transparent;
+  border: 0;
+  cursor: text;
+}
+
+.messageInput:focus {
+  border: 0;
+  outline: 0;
+  box-shadow: none;
+}

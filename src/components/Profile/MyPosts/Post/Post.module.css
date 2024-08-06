@@ -1,8 +1,9 @@
 .post {
-    border: 1px solid darkred;
+  border: 1px solid darkmagenta;
+  padding: 10px;
 }
 
 .avatar {
-    width: 80px;
-    height: 80px;
+  width: 80px;
+  height: 80px;
 }

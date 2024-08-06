@@ -1,15 +1,59 @@
 .nav {
-    grid-area: nav;
-    background-color: darkgoldenrod;
-    list-style: none;
-    padding: 15px;
-  }
+  display: flex;
+  flex-direction: column;
+  background-color: darkgoldenrod;
+  list-style: none;
+  padding: 15px;
+  gap: 100px;
+}
+
+.favoriteChats {
+  display: flex;
+  position: relative;
+  flex-direction: row;
+  margin-top: 20px;
+  place-content: center;
+}
+
+.favoriteChats a {
+  margin-left: -13px;
+}
+
+.item {
+  text-align: center;
+  margin-top: 2px;
+}
 
 .item a {
+  display: block;
+  width: auto;
   color: white;
   text-decoration: none;
+  font-size: var(--nav-font-size);
+  border: 1px solid black;
 }
 
 .item a.active {
   color: darkblue;
+}
+
+.item :hover {
+  cursor: pointer;
+  animation: jelly 0.5s;
+}
+
+@keyframes jelly {
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+  25% {
+    transform: scale(0.9, 1.1);
+  }
+  50% {
+    transform: scale(1.1, 0.9);
+  }
+  75% {
+    transform: scale(0.95, 1.05);
+  }
 }

@@ -1,13 +1,19 @@
+:root {
+  --nav-font-size: 21px;
+  --input-font-size: 18px;
+  --main-color: cadetblue;
+}
+
 .app-wrapper {
   display: grid;
   grid-template-areas:
-   "header header"
-   "nav content";
+    "header header"
+    "nav content";
   grid-template-rows: 60px 1fr;
-  grid-template-columns: 2fr 10fr;
+  grid-template-columns: 1fr 10fr;
 }
 
 .app-wrapper {
   grid-area: content;
-  background-color: cadetblue;
+  background-color: var(--main-color);
 }

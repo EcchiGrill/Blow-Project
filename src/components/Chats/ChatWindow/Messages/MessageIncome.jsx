@@ -13,10 +13,7 @@ const MessageIncome = (props) => {
       </div>
       <div className={`${styles.messageOptions} + ${styles.income}`}>
         <div className={styles.avatar}>
-          <img
-            src="https://i.pinimg.com/564x/be/c6/ce/bec6ce7cd23e943519e9d7bb3c359d0a.jpg"
-            alt=""
-          />
+          <img src={props.avatar} alt="" />
         </div>
         <span className={styles.date}>{props.date}</span>
         <span className={styles.status}>Delivered</span>
