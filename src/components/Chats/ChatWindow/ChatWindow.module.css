@@ -1,15 +1,22 @@
 .chatWindow {
+  display: grid;
+  grid-template-rows: auto 70vh auto;
   border: 1px solid black;
 }
 
 .profile {
   display: flex;
+  width: 100%;
   border-bottom: 1px solid black;
+  background: var(--main-color);
   gap: 10px;
 }
 
 .messages {
   padding: 5px;
+  scrollbar-width: none;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .avatarWrapper {
@@ -21,6 +28,10 @@
   width: 80px;
   height: 80px;
   border-radius: 50%;
+}
+
+.username {
+  color: #fff;
 }
 
 .status {
@@ -100,13 +111,14 @@
 .messageInput {
   height: auto;
   resize: none;
-  padding: 1.5rem 6.5rem 0rem 1rem;
+  padding: 1.5rem 0.3rem 0rem 1rem;
   cursor: text;
   color: #fff;
   font-size: var(--input-font-size);
   background-color: transparent;
   border: 0;
   cursor: text;
+  overflow-y: hidden;
 }
 
 .messageInput:focus {

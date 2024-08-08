@@ -3,11 +3,7 @@ import styles from "./Navbar.module.css";
 import FavoriteChat from "components/Navbar/FavoriteChat/FavoriteChat";
 
 const Navbar = (props) => {
-  let sortedFavoriteChats = props.data.chats.sort((a, b) => {
-    return b.msgCount - a.msgCount;
-  });
-
-  let favoriteChatsElements = sortedFavoriteChats.map((chat, i) => {
+  let favoriteChatsElements = props.data.chats.map((chat, i) => {
     if (i < 3) {
       return (
         <FavoriteChat

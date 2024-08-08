@@ -1,3 +1,5 @@
+import { renderTree } from "render";
+
 let state = {
   profilePage: {
     posts: [
@@ -9,32 +11,31 @@ let state = {
         likeCount: 13,
       },
     ],
+    newPostText: "",
   },
   chatsPage: {
     chats: [
-      {
-        usertag: 1,
-        username: "Ryo",
-        avatar:
-          "https://i.pinimg.com/564x/be/c6/ce/bec6ce7cd23e943519e9d7bb3c359d0a.jpg",
-        status: true,
-        msgCount: 6,
-      },
       {
         usertag: 2,
         username: "Nijika",
         avatar:
           "https://i.pinimg.com/564x/06/9f/bf/069fbf8ea7e830f49b296018ff387f32.jpg",
         status: false,
-        msgCount: 4,
       },
+      {
+        usertag: 1,
+        username: "Ryo",
+        avatar:
+          "https://i.pinimg.com/564x/be/c6/ce/bec6ce7cd23e943519e9d7bb3c359d0a.jpg",
+        status: true,
+      },
+
       {
         usertag: 3,
         username: "Rita",
         avatar:
           "https://i.pinimg.com/564x/dc/9f/dd/dc9fdda3f427bb7c42d8cb70b9233255.jpg",
         status: true,
-        msgCount: 4,
       },
       {
         usertag: 4,
@@ -42,7 +43,6 @@ let state = {
         avatar:
           "https://i.pinimg.com/564x/59/c7/b5/59c7b5a2156420bf645a3ca2da51fa45.jpg",
         status: true,
-        msgCount: 2,
       },
     ],
     "messages-1": [
@@ -116,7 +116,74 @@ let state = {
         state: "out",
       },
     ],
+    newMessageText: "",
   },
+};
+
+let sortFavoriteChats = () => {
+  state.chatsPage.chats.sort((user1, user2) => {
+    return (
+      state.chatsPage[`messages-${user2.usertag}`].length -
+      state.chatsPage[`messages-${user1.usertag}`].length
+    );
+  });
+};
+
+sortFavoriteChats();
+
+export let addPost = (text) => {
+  let postIds = [];
+
+  state.profilePage.posts.map((post) => {
+    return postIds.push(post.id);
+  });
+
+  let maxPostId = Math.max(...postIds);
+
+  let post = {
+    id: ++maxPostId,
+    text: text,
+    img: "",
+    likeCount: 0,
+  };
+  state.profilePage.posts.push(post);
+  state.profilePage.newPostText = "";
+  renderTree(state);
+};
+
+export let updateNewPostText = (postRef) => {
+  state.profilePage.newPostText = postRef;
+  renderTree(state);
+};
+
+export let sendMessage = (text, userTag) => {
+  let userMessages = `messages-${userTag}`;
+  let msgIds = [];
+
+  state.chatsPage[userMessages].map((msg) => {
+    return msgIds.push(msg.id);
+  });
+
+  let maxMsgId = Math.max(...msgIds);
+
+  let date = new Date();
+
+  let msg = {
+    id: ++maxMsgId,
+    text: text,
+    date: date.toLocaleTimeString([], { timeStyle: "short" }),
+    state: "out",
+  };
+
+  state.chatsPage[userMessages].push(msg);
+  state.chatsPage.newMessageText = "";
+  renderTree(state);
+};
+
+export let updateNewMessageText = (postRef) => {
+  state.chatsPage.newMessageText = postRef;
+  sortFavoriteChats();
+  renderTree(state);
 };
 
 export default state;

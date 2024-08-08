@@ -11,14 +11,25 @@ const MyPosts = (props) => {
 
   let addPost = () => {
     let value = postRef.current.value;
-    return alert(value);
+    props.addPost(value);
+  };
+
+  let updateNewPostText = () => {
+    let value = postRef.current.value;
+    props.updateNewPostText(value);
   };
 
   return (
     <div className={styles.container}>
       <h2>My Posts</h2>
       <form action="POST">
-        <textarea name="" id="" ref={postRef}></textarea>
+        <textarea
+          name=""
+          id=""
+          ref={postRef}
+          onChange={updateNewPostText}
+          value={props.data.newPostText}
+        />
         <br />
         <button type="button" onClick={addPost}>
           Add Post

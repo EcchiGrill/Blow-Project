@@ -24,7 +24,13 @@ const ChatWindow = (props) => {
   let messageRef = createRef();
 
   let sendMessage = () => {
-    return alert(messageRef.current.value);
+    let value = messageRef.current.value;
+    props.sendMessage(value, props.usertag);
+  };
+
+  let updateNewMessageText = () => {
+    let value = messageRef.current.value;
+    props.updateNewMessageText(value);
   };
 
   return (
@@ -47,16 +53,15 @@ const ChatWindow = (props) => {
         </div>
         <textarea
           className={styles.messageInput}
+          onChange={updateNewMessageText}
           ref={messageRef}
-          contenteditable="true"
+          value={props.data.newMessageText}
           placeholder="Type your message here..."
-          tabindex="0"
-          dir="ltr"
-          spellcheck="false"
-          autocomplete="off"
-          autocorrect="off"
-          autocapitalize="none"
-        ></textarea>
+          spellCheck="false"
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="none"
+        />
         <div className={styles.emoji + " " + styles.item}>
           <button type="button">:3</button>
         </div>

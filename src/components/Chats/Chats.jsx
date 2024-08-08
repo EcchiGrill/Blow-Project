@@ -25,7 +25,10 @@ const Chats = (props) => {
             username={chat.username}
             avatar={chat.avatar}
             status={chat.status}
+            data={props.data}
             messages={props.data[`messages-${chat.usertag}`]}
+            sendMessage={props.sendMessage}
+            updateNewMessageText={props.updateNewMessageText}
           />
         }
       />
