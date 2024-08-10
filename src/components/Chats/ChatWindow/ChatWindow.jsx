@@ -25,12 +25,19 @@ const ChatWindow = (props) => {
 
   let sendMessage = () => {
     let value = messageRef.current.value;
-    props.sendMessage(value, props.usertag);
+    props.dispatch({
+      type: "SEND-MESSAGE",
+      text: value,
+      usertag: props.usertag,
+    });
   };
 
   let updateNewMessageText = () => {
     let value = messageRef.current.value;
-    props.updateNewMessageText(value);
+    props.dispatch({
+      type: "UPDATE-NEW-MESSAGE-TEXT",
+      msgRef: value,
+    });
   };
 
   return (

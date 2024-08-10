@@ -11,12 +11,18 @@ const MyPosts = (props) => {
 
   let addPost = () => {
     let value = postRef.current.value;
-    props.addPost(value);
+    props.dispatch({
+      type: "ADD-POST",
+      text: value,
+    });
   };
 
   let updateNewPostText = () => {
     let value = postRef.current.value;
-    props.updateNewPostText(value);
+    props.dispatch({
+      type: "UPDATE-NEW-POST-TEXT",
+      postRef: value,
+    });
   };
 
   return (

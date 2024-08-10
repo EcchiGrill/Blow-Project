@@ -27,8 +27,7 @@ const Chats = (props) => {
             status={chat.status}
             data={props.data}
             messages={props.data[`messages-${chat.usertag}`]}
-            sendMessage={props.sendMessage}
-            updateNewMessageText={props.updateNewMessageText}
+            dispatch={props.dispatch}
           />
         }
       />
