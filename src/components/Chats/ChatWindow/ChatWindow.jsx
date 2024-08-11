@@ -2,6 +2,10 @@ import styles from "./ChatWindow.module.css";
 import MessageIncome from "components/Chats/ChatWindow/Messages/MessageIncome";
 import MessageOutcome from "components/Chats/ChatWindow/Messages/MessageOutcome";
 import { createRef } from "react";
+import {
+  sendMessageActionCreator,
+  updateNewMessageTextActionCreator,
+} from "redux/chatsReducer";
 
 const ChatWindow = (props) => {
   let messagesSorted = props.messages.sort((a, b) => a.id - b.id);
@@ -21,23 +25,13 @@ const ChatWindow = (props) => {
     }
   });
 
-  let messageRef = createRef();
-
   let sendMessage = () => {
-    let value = messageRef.current.value;
-    props.dispatch({
-      type: "SEND-MESSAGE",
-      text: value,
-      usertag: props.usertag,
-    });
+    props.dispatch(sendMessageActionCreator(props.usertag));
   };
 
-  let updateNewMessageText = () => {
-    let value = messageRef.current.value;
-    props.dispatch({
-      type: "UPDATE-NEW-MESSAGE-TEXT",
-      msgRef: value,
-    });
+  let updateNewMessageText = (e) => {
+    let value = e.target.value;
+    props.dispatch(updateNewMessageTextActionCreator(value));
   };
 
   return (
@@ -61,7 +55,6 @@ const ChatWindow = (props) => {
         <textarea
           className={styles.messageInput}
           onChange={updateNewMessageText}
-          ref={messageRef}
           value={props.data.newMessageText}
           placeholder="Type your message here..."
           spellCheck="false"

@@ -1,6 +1,10 @@
 import { createRef } from "react";
 import styles from "./MyPosts.module.css";
 import Post from "components/Profile/MyPosts/Post/Post";
+import {
+  addPostActionCreator,
+  updateNewPostTextActionCreator,
+} from "redux/profileReducer";
 
 const MyPosts = (props) => {
   let postsElements = props.data.posts.map((post) => {
@@ -10,19 +14,12 @@ const MyPosts = (props) => {
   let postRef = createRef();
 
   let addPost = () => {
-    let value = postRef.current.value;
-    props.dispatch({
-      type: "ADD-POST",
-      text: value,
-    });
+    props.dispatch(addPostActionCreator());
   };
 
   let updateNewPostText = () => {
     let value = postRef.current.value;
-    props.dispatch({
-      type: "UPDATE-NEW-POST-TEXT",
-      postRef: value,
-    });
+    props.dispatch(updateNewPostTextActionCreator(value));
   };
 
   return (

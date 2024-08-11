@@ -1,3 +1,6 @@
+import chatsReducer from "./chatsReducer";
+import profileReducer from "./profileReducer";
+
 let store = {
   _state: {
     profilePage: {
@@ -132,55 +135,12 @@ let store = {
   },
 
   dispatch(action) {
-    if (action.type === "ADD-POST") {
-      let postIds = [];
-
-      this._state.profilePage.posts.map((post) => {
-        return postIds.push(post.id);
-      });
-
-      let maxPostId = Math.max(...postIds);
-
-      let post = {
-        id: ++maxPostId,
-        text: action.text,
-        img: "",
-        likeCount: 0,
-      };
-      this._state.profilePage.posts.push(post);
-      this._state.profilePage.newPostText = "";
-      this._callSubscriber(this._state);
-    } else if (action.type === "UPDATE-NEW-POST-TEXT") {
-      this._state.profilePage.newPostText = action.postRef;
-      this._callSubscriber(this._state);
-    } else if (action.type === "SEND-MESSAGE") {
-      let userMessages = `messages-${action.usertag}`;
-      let msgIds = [];
-
-      this._state.chatsPage[userMessages].map((msg) => {
-        return msgIds.push(msg.id);
-      });
-
-      let maxMsgId = Math.max(...msgIds);
-
-      let date = new Date();
-
-      let msg = {
-        id: ++maxMsgId,
-        text: action.text,
-        date: date.toLocaleTimeString([], { timeStyle: "short" }),
-        state: "out",
-      };
-
-      this._state.chatsPage[userMessages].push(msg);
-      this._state.chatsPage.newMessageText = "";
-      this._callSubscriber(this._state);
-    } else if (action.type === "UPDATE-NEW-MESSAGE-TEXT") {
-      this._state.chatsPage.newMessageText = action.msgRef;
-      this.sortFavoriteChats();
-      this._callSubscriber(this._state);
-    }
+    profileReducer(this._state.profilePage, action);
+    chatsReducer(this._state.chatsPage, action);
+    this.sortFavoriteChats();
+    this._callSubscriber(this._state);
   },
+
   sortFavoriteChats() {
     this._state.chatsPage.chats.sort((user1, user2) => {
       return (
