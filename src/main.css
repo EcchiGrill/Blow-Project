@@ -17,6 +17,14 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+*:focus {
+  outline: 1px solid #576c33;
+}
+
+input:active {
+  outline: 1px solid #576c33;
+}
+
 a {
   font-weight: 500;
   text-decoration: inherit;
@@ -27,6 +35,7 @@ body {
   display: flex;
   min-width: 320px;
   min-height: 100vh;
+  background-color: #fff5d2;
 }
 
 h1 {

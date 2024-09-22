@@ -13,13 +13,24 @@ import {
   CassetteTape,
   Fan,
 } from "lucide-react";
+import { NavLink } from "react-router-dom";
+import { Input } from "@/components/ui/input";
+import { useAppDispatch, useAppSelector } from "@/store/store-hooks";
+import { login } from "@/store/slices/userSlice";
 
 export function Navmenu() {
   const [open, setOpen] = useState(false);
+  const dispatch = useAppDispatch();
+  const isLogged = useAppSelector((state) => state.user.isLogged);
 
   const menuItems = [
     { icon: Home, label: "Home", href: "/" },
-    { icon: User, label: "Profile", href: "/profile" },
+    {
+      icon: User,
+      label: isLogged ? "Profile" : "Login",
+      href: isLogged ? "/profile" : "/Login",
+      action: dispatch(login(true)),
+    },
     { icon: Mail, label: "Messages", href: "/messages" },
     { icon: Images, label: "Gallery", href: "/gallery" },
     { icon: CassetteTape, label: "Music", href: "/music" },
@@ -27,8 +38,8 @@ export function Navmenu() {
   ];
 
   const NavContent = () => (
-    <div className="flex h-full flex-col bg-black text-white">
-      <div className="flex h-14 items-center border-b border-gray-800 px-4">
+    <div className="flex h-full flex-col bg-primary text-secondary lg:border-r lg:border-secondary">
+      <div className="flex h-14 items-center border-b border-secondary px-4">
         <a className="flex items-center gap-2 font-semibold" href="/">
           <Fan className="h-6 w-6" />
           <span>Blow Project</span>
@@ -36,30 +47,33 @@ export function Navmenu() {
       </div>
       <ScrollArea className="flex-1">
         <div className="flex flex-col gap-2 p-4">
-          <form className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
-            <input
-              className="w-full appearance-none rounded-md border border-gray-800 bg-gray-950 py-2 pl-8 pr-4 text-sm text-white placeholder:text-gray-500 focus:border-gray-700 focus:outline-none focus:ring-1 focus:ring-gray-700"
-              placeholder="Search..."
-              type="search"
-            />
+          <form className="relative ">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-secondary" />
+            <Input className="pl-8" placeholder="Search..." type="search" />
           </form>
           <nav className="flex flex-col gap-1">
             {menuItems.map((item, index) => (
-              <a
+              <NavLink
                 key={index}
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-300 transition-all hover:bg-gray-900 hover:text-white"
-                href={item.href}
+                className={({ isActive }: { isActive: boolean }): string => {
+                  const cn =
+                    "flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:bg-secondary hover:text-primary";
+                  return isActive
+                    ? "bg-secondary text-primary " + cn
+                    : "text-secondary " + cn;
+                }}
+                to={item.href}
+                onClick={() => item.action}
               >
                 <item.icon className="h-4 w-4" />
                 {item.label}
-              </a>
+              </NavLink>
             ))}
           </nav>
         </div>
       </ScrollArea>
-      <div className="border-t border-gray-800 p-4">
-        <p className="text-xs text-gray-400">
+      <div className="border-b border-secondary p-4">
+        <p className="text-xs text-center text-secondary">
           © 2024 Blow Project. All rights reserved.
         </p>
       </div>
@@ -68,13 +82,17 @@ export function Navmenu() {
 
   return (
     <>
-      <aside className="hidden h-screen w-64 lg:block">
+      <aside className="hidden h-full w-64 lg:block">
         <NavContent />
       </aside>
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
-          <Button className="lg:hidden" size="icon" variant="outline">
-            <Menu className="h-6 w-6" />
+          <Button
+            className="lg:hidden rounded-none ml-3 mt-4"
+            size="icon"
+            variant="ghost"
+          >
+            <Menu className="h-6 w-6 text-secondary" />
             <span className="sr-only">Toggle navigation menu</span>
           </Button>
         </SheetTrigger>

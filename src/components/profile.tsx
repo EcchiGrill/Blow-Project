@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { BookOpen, Edit, Globe, Mail, MapPin, User } from "lucide-react";
@@ -19,12 +18,11 @@ export function Profile() {
   const [isEditing, setIsEditing] = useState(false);
 
   return (
-    <div className="px-4 py-8">
+    <main className="p-4">
       <Tabs defaultValue="profile" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="activity">Activity</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
         <TabsContent value="profile">
           <Card>
@@ -32,11 +30,11 @@ export function Profile() {
               <div className="flex items-center justify-between">
                 <CardTitle>Profile Information</CardTitle>
                 <Button
-                  variant="outline"
+                  variant="default"
                   size="icon"
                   onClick={() => setIsEditing(!isEditing)}
                 >
-                  <Edit className="h-4 w-4" />
+                  <Edit className="h-4 w-4 text-secondary" />
                   <span className="sr-only">Edit Profile</span>
                 </Button>
               </div>
@@ -50,7 +48,7 @@ export function Profile() {
                   <img
                     className="rounded-full object-cover"
                     height="80"
-                    src="/logo(alt).png"
+                    src="/avatar.png"
                     style={{
                       aspectRatio: "80/80",
                       objectFit: "cover",
@@ -60,17 +58,19 @@ export function Profile() {
                   {isEditing && (
                     <Button
                       className="absolute bottom-0 right-0 h-6 w-6 rounded-full p-0"
+                      variant="default"
                       size="icon"
-                      variant="outline"
                     >
-                      <Edit className="h-3 w-3" />
+                      <Edit className="h-3 w-3 text-secondary" />
                       <span className="sr-only">Change profile picture</span>
                     </Button>
                   )}
                 </div>
                 <div>
                   <h3 className="font-semibold">John Doe</h3>
-                  <p className="text-sm text-gray-500">Joined January 2023</p>
+                  <p className="text-sm text-primary-foreground">
+                    Joined January 2024
+                  </p>
                 </div>
               </div>
               <div className="space-y-2">
@@ -87,7 +87,7 @@ export function Profile() {
                 <div className="space-y-2">
                   <Label htmlFor="location">Location</Label>
                   <div className="flex items-center space-x-2">
-                    <MapPin className="h-4 w-4 text-gray-500" />
+                    <MapPin className="h-4 w-4 text-primary" />
                     <Input
                       id="location"
                       placeholder="Your location"
@@ -99,11 +99,11 @@ export function Profile() {
                 <div className="space-y-2">
                   <Label htmlFor="website">Website</Label>
                   <div className="flex items-center space-x-2">
-                    <Globe className="h-4 w-4 text-gray-500" />
+                    <Globe className="h-4 w-4 text-primary" />
                     <Input
                       id="website"
                       placeholder="Your website"
-                      defaultValue="https://janedoe.com"
+                      defaultValue="https://johndoe.com"
                       disabled={!isEditing}
                     />
                   </div>
@@ -111,7 +111,9 @@ export function Profile() {
               </div>
             </CardContent>
             <CardFooter>
-              {isEditing && <Button className="ml-auto">Save Changes</Button>}
+              {isEditing && (
+                <Button className="ml-auto text-secondary">Save Changes</Button>
+              )}
             </CardFooter>
           </Card>
         </TabsContent>
@@ -133,7 +135,7 @@ export function Profile() {
                   },
                   {
                     icon: Mail,
-                    text: "Replied to a comment on 'Web Development Trends 2023'",
+                    text: "Replied to a comment on 'Web Development Trends 2024'",
                     date: "5 days ago",
                   },
                   {
@@ -143,12 +145,12 @@ export function Profile() {
                   },
                 ].map((item, index) => (
                   <li key={index} className="flex items-start space-x-4">
-                    <div className="rounded-full bg-gray-100 p-2">
-                      <item.icon className="h-4 w-4" />
+                    <div className="rounded-full bg-primary text-secondary p-2">
+                      <item.icon className="h-4 w-4 text-secondary" />
                     </div>
                     <div>
                       <p>{item.text}</p>
-                      <p className="text-sm text-gray-500">{item.date}</p>
+                      <p className="text-sm text-primary">{item.date}</p>
                     </div>
                   </li>
                 ))}
@@ -156,55 +158,7 @@ export function Profile() {
             </CardContent>
           </Card>
         </TabsContent>
-        <TabsContent value="settings">
-          <Card>
-            <CardHeader>
-              <CardTitle>Account Settings</CardTitle>
-              <CardDescription>Manage your account preferences</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label htmlFor="notifications">Email Notifications</Label>
-                  <p className="text-sm text-gray-500">
-                    Receive email updates about your account
-                  </p>
-                </div>
-                <Switch id="notifications" />
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label htmlFor="newsletter">Newsletter Subscription</Label>
-                  <p className="text-sm text-gray-500">
-                    Receive our weekly newsletter
-                  </p>
-                </div>
-                <Switch id="newsletter" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
-                <Input
-                  id="email"
-                  placeholder="Your email address"
-                  type="email"
-                  defaultValue="jane.doe@example.com"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Change Password</Label>
-                <Input
-                  id="password"
-                  placeholder="Enter new password"
-                  type="password"
-                />
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button className="ml-auto">Save Settings</Button>
-            </CardFooter>
-          </Card>
-        </TabsContent>
       </Tabs>
-    </div>
+    </main>
   );
 }

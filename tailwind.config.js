@@ -7,6 +7,9 @@ export default {
       gridTemplateColumns: {
         "1/10fr": "1fr 10fr",
       },
+      gridTemplateRows: {
+        "1/10fr": "1fr 10fr",
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
@@ -24,12 +27,10 @@ export default {
           foreground: "hsl(var(--popover-foreground))",
         },
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "#fff5d2",
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: "#576c33",
         },
         muted: {
           DEFAULT: "hsl(var(--muted))",
