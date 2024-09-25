@@ -9,6 +9,7 @@ import ErrorBoundary from "@/404/error-boundary.tsx";
 import Settings from "@/components/settings";
 import { Provider } from "react-redux";
 import { store } from "@/store/store";
+import { Feed } from "./components/feed";
 
 const router = createBrowserRouter([
   {
@@ -19,6 +20,10 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <Home />,
+      },
+      {
+        path: "feed",
+        element: <Feed />,
       },
       {
         path: "profile",

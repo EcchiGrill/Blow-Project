@@ -9,12 +9,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { ChevronRight, Mail, Search } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { usePosts } from "@/hooks/usePosts";
+import { Link } from "react-router-dom";
 
 function Home() {
+  const { posts, error } = usePosts();
+
   return (
     <main className="flex flex-col min-h-screen place-items-center">
       <div className="flex-1">
-        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 text-secondary">
+        <section className="w-full py-12 md:py-24 lg:py-32 text-secondary">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center space-y-4 text-center">
               <div className="space-y-2">
@@ -41,7 +45,7 @@ function Home() {
             </div>
           </div>
         </section>
-        <section className="w-full py-12 md:py-24 lg:py-32">
+        <section className="w-full py-12 md:py-24 lg:py-6">
           <div className="container px-4 md:px-6">
             <h2 className="text-3xl text-secondary font-bold tracking-tighter sm:text-4xl md:text-5xl mb-8">
               Most Active Users
@@ -76,35 +80,48 @@ function Home() {
             <h2 className="text-3xl font-bold tracking-tighter text-secondary sm:text-4xl md:text-5xl mb-8">
               Recent Posts
             </h2>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <Card key={i}>
-                  <CardHeader>
-                    <CardTitle>Blog Post {i}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-primary">
-                      By John Doe • {i} day{i !== 1 ? "s" : ""} ago
-                    </p>
-                    <p className="mt-2">
-                      This is a brief excerpt from blog post {i}. Click to read
-                      more...
-                    </p>
-                  </CardContent>
-                  <CardFooter>
-                    <Button variant="default">
-                      Read More
-                      <ChevronRight className="ml-2 h-4 w-4" />
+            {error && (
+              <p className="text-lg mb-5 text-center text-red-500">
+                {error.message}
+              </p>
+            )}
+            {posts && (
+              <>
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {posts.map((post) => (
+                    <Card key={post.id}>
+                      <CardHeader>
+                        <CardTitle>{post.title}</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm text-primary">
+                          By {post.author} • {post.date}
+                        </p>
+                        <p className="mt-2">{post.content}</p>
+                        <p className="text-right mt-2 font-light">
+                          Likes: {post.likes}
+                        </p>
+                      </CardContent>
+                      <CardFooter>
+                        <Link to="/feed">
+                          <Button variant="default">
+                            Read More
+                            <ChevronRight className="ml-2 h-4 w-4" />
+                          </Button>
+                        </Link>
+                      </CardFooter>
+                    </Card>
+                  ))}
+                </div>
+                <div className="mt-10 text-center">
+                  <Link to="/feed">
+                    <Button variant="secondary" size="lg">
+                      View All Posts
                     </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
-            <div className="mt-10 text-center">
-              <Button variant="secondary" size="lg">
-                View All Posts
-              </Button>
-            </div>
+                  </Link>
+                </div>
+              </>
+            )}
           </div>
         </section>
         <footer className="w-full py-12 md:py-16 lg:py-24">

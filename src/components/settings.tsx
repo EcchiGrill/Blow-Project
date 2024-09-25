@@ -44,7 +44,7 @@ function Settings() {
               id="email"
               placeholder="Your email address"
               type="email"
-              defaultValue="jane.doe@example.com"
+              defaultValue="john.doe@blow.project"
             />
           </div>
           <div className="space-y-2">

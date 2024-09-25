@@ -2,10 +2,12 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface IUser {
   isLogged: boolean;
+  username: string;
 }
 
 const initialState: IUser = {
   isLogged: true,
+  username: "John Doe",
 };
 
 export const userSlice = createSlice({
@@ -13,7 +15,10 @@ export const userSlice = createSlice({
   initialState,
   reducers: {
     login: (state, action: PayloadAction<boolean>) => {
-      state.isLogged = action.payload;
+      return {
+        ...state,
+        isLogged: action.payload,
+      };
     },
   },
 });

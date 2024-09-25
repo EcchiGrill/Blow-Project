@@ -12,6 +12,7 @@ import {
   Images,
   CassetteTape,
   Fan,
+  Newspaper,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -24,26 +25,27 @@ export function Navmenu() {
   const isLogged = useAppSelector((state) => state.user.isLogged);
 
   const menuItems = [
-    { icon: Home, label: "Home", href: "/" },
+    { icon: Home, label: "Home", to: "/" },
+    { icon: Newspaper, label: "Feed", to: "/feed" },
     {
       icon: User,
       label: isLogged ? "Profile" : "Login",
-      href: isLogged ? "/profile" : "/Login",
+      to: isLogged ? "/profile" : "/Login",
       action: dispatch(login(true)),
     },
-    { icon: Mail, label: "Messages", href: "/messages" },
-    { icon: Images, label: "Gallery", href: "/gallery" },
-    { icon: CassetteTape, label: "Music", href: "/music" },
-    { icon: Settings, label: "Settings", href: "/settings" },
+    { icon: Mail, label: "Messages", to: "/messages" },
+    { icon: Images, label: "Gallery", to: "/gallery" },
+    { icon: CassetteTape, label: "Music", to: "/music" },
+    { icon: Settings, label: "Settings", to: "/settings" },
   ];
 
   const NavContent = () => (
     <div className="flex h-full flex-col bg-primary text-secondary lg:border-r lg:border-secondary">
       <div className="flex h-14 items-center border-b border-secondary px-4">
-        <a className="flex items-center gap-2 font-semibold" href="/">
+        <NavLink className="flex items-center gap-2 font-semibold" to="/">
           <Fan className="h-6 w-6" />
           <span>Blow Project</span>
-        </a>
+        </NavLink>
       </div>
       <ScrollArea className="flex-1">
         <div className="flex flex-col gap-2 p-4">
@@ -62,7 +64,7 @@ export function Navmenu() {
                     ? "bg-secondary text-primary " + cn
                     : "text-secondary " + cn;
                 }}
-                to={item.href}
+                to={item.to}
                 onClick={() => item.action}
               >
                 <item.icon className="h-4 w-4" />
@@ -82,7 +84,7 @@ export function Navmenu() {
 
   return (
     <>
-      <aside className="hidden h-full w-64 lg:block">
+      <aside className="hidden min-h-screen w-64 lg:block">
         <NavContent />
       </aside>
       <Sheet open={open} onOpenChange={setOpen}>

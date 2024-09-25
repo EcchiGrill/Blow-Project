@@ -13,9 +13,11 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { BookOpen, Edit, Globe, Mail, MapPin, User } from "lucide-react";
+import { useAppSelector } from "@/store/store-hooks";
 
 export function Profile() {
   const [isEditing, setIsEditing] = useState(false);
+  const username = useAppSelector((state) => state.user.username);
 
   return (
     <main className="p-4">
@@ -67,7 +69,7 @@ export function Profile() {
                   )}
                 </div>
                 <div>
-                  <h3 className="font-semibold">John Doe</h3>
+                  <h3 className="font-semibold">{username}</h3>
                   <p className="text-sm text-primary-foreground">
                     Joined January 2024
                   </p>
