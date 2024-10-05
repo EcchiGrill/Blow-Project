@@ -28,9 +28,14 @@ export default {
         },
         primary: {
           DEFAULT: "#fff5d2",
+          muted: "#f2e8c7",
         },
         secondary: {
           DEFAULT: "#576c33",
+          muted: "#5e7055",
+        },
+        error: {
+          DEFAULT: "#cc5547",
         },
         muted: {
           DEFAULT: "hsl(var(--muted))",
@@ -54,6 +59,12 @@ export default {
           4: "hsl(var(--chart-4))",
           5: "hsl(var(--chart-5))",
         },
+      },
+      screens: {
+        "3xl": "1700px",
+      },
+      width: {
+        inherit: "inherit",
       },
     },
   },

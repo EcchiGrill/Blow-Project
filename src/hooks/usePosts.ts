@@ -1,82 +1,56 @@
-import { setError, setPosts } from "@/store/slices/postsSlice";
+import {
+  fetchPosts,
+  addLike,
+  selectContent,
+  selectUIError,
+  selectPosts,
+  selectTitle,
+  addPost,
+  selectRecentPosts,
+  setError,
+} from "@/store/slices/posts-slice";
 import { useAppDispatch, useAppSelector } from "@/store/store-hooks";
+import { shallowEqual } from "react-redux";
+import { AsyncFnType } from "@/types";
 import { useEffect } from "react";
-import supabase from "../../supabase/supabaseClient";
-import { useNavigate } from "react-router-dom";
 
 export const usePosts = () => {
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
-  const posts = useAppSelector((state) => state.posts.fetchedPosts);
-  const content = useAppSelector((state) => state.posts.content);
-  const title = useAppSelector((state) => state.posts.title);
-  const user = useAppSelector((state) => state.user);
-  const error = useAppSelector((state) => state.posts.error);
+  const posts = useAppSelector(selectPosts);
+  const recentPosts = useAppSelector(selectRecentPosts, shallowEqual);
+  const content = useAppSelector(selectContent);
+  const title = useAppSelector(selectTitle);
+  const error = useAppSelector(selectUIError);
 
-  const addPost = async () => {
+  const updatePosts = (f: AsyncFnType<unknown>) =>
+    f().then(() => dispatch(fetchPosts()));
+
+  const createPost = () => {
     if (!content || !title) {
-      dispatch(setError({ message: "Please fill in all the fields" }));
+      dispatch(setError("Fill all the fields!"));
       return;
     }
-
-    const { data, error } = await supabase
-      .from("posts")
-      .insert([{ author: user.username, title: title, content: content }])
-      .select();
-
-    if (error) {
-      console.log(error);
-      dispatch(setError(error));
-    }
-
-    if (data) {
-      dispatch(setPosts(data));
-      navigate(0);
-    }
+    const f = async () => dispatch(addPost());
+    updatePosts(f);
   };
 
-  const likePost = async (id: number, likes: number) => {
-    const { data, error } = await supabase
-      .from("posts")
-      .update({ likes: likes + 1 })
-      .eq("id", id)
-      .select();
-
-    if (error) {
-      console.log(error);
-      dispatch(setError(error));
-    }
-
-    if (data) {
-      dispatch(setPosts(data));
-      navigate(0);
-    }
+  const likePost = (id: number, likes: number) => {
+    const f = async () => dispatch(addLike({ id: id, likes: likes }));
+    updatePosts(f);
   };
 
   useEffect(() => {
-    const getPosts = async () => {
-      const { data, error } = await supabase.from("posts").select();
-
-      if (error) {
-        console.log(error);
-        dispatch(setError(error));
-      }
-
-      if (data) {
-        dispatch(setPosts(data));
-      }
-    };
-
-    getPosts();
+    dispatch(fetchPosts());
   }, [dispatch]);
 
   return {
+    recentPosts,
     posts,
     content,
     title,
     error,
-    addPost,
-    likePost,
     dispatch,
+    likePost,
+    createPost,
   };
 };
