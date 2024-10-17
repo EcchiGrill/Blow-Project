@@ -1,4 +1,4 @@
-import { NavItemProps } from "@/types";
+import { NavItemProps } from "@/lib/types";
 import { NavLink } from "react-router-dom";
 
 function NavItem({ Icon, label, to, onClick, state }: NavItemProps) {

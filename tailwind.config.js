@@ -61,6 +61,7 @@ export default {
         },
       },
       screens: {
+        xs: "480px",
         "3xl": "1700px",
       },
       width: {

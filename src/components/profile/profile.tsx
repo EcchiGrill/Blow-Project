@@ -1,17 +1,18 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Activity from "./activity";
 import ProfileInfo from "./profile-info";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { CornerDownRight } from "lucide-react";
-import { useUser } from "@/hooks/useUser";
+import { useUser } from "@/lib/hooks/useUser";
 
 function Profile() {
+  const location = useLocation();
   const { isLogged } = useUser();
 
   return (
     <main
       className={
-        "p-4" +
+        "w-inherit sm:container mx-auto px-4 py-8 " +
         `${!isLogged && " flex place-items-center place-content-center"}`
       }
     >

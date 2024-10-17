@@ -1,8 +1,9 @@
 import { LucideIcon } from "lucide-react";
-import { Location } from "react-router-dom";
-import { PostgrestError } from "@supabase/supabase-js";
+import { Location, NavigateFunction } from "react-router-dom";
+import { PostgrestError, Session } from "@supabase/supabase-js";
 import { Database } from "@/supabase/db.types";
 import { ToastPosition } from "react-hot-toast";
+import { ReactNode } from "react";
 
 export function getFetchedPostType(db: Database) {
   return db.public.Tables.posts.Row;
@@ -12,12 +13,12 @@ export type FetchedPostType = ReturnType<typeof getFetchedPostType>;
 
 export type FetchedPostsType = FetchedPostType[];
 
-export type ErrorType = PostgrestError;
+export type ErrorType = PostgrestError | null;
 
 export type GetErrorType = {
   UIError?: string | null | undefined;
   maintain: {
-    error?: PostgrestError | undefined;
+    error?: ErrorType | undefined | null;
     status?: StatusType | undefined;
   };
 };
@@ -42,20 +43,32 @@ export interface IPosts {
   };
 }
 
+export type SessionType = {
+  isLogged?: boolean;
+  session: Session | null;
+};
+
+type UserData = {
+  otp?: string;
+  session?: Session | null;
+  email_verified?: boolean;
+  created_at?: string;
+  fullName: string;
+  username: string;
+  email: string;
+  password: string;
+};
+
 export interface IUser {
-  isLogged: boolean;
+  isLogged?: boolean;
   UIError?: string | null;
-  data: {
-    fullName: string;
-    username: string;
-    email: string;
-    password: string;
-  };
+  data: UserData;
   maintain: {
     error?: ErrorType;
     status?: StatusType;
   };
   isBackToLogin: boolean;
+  isOTPConfirm: boolean;
   captcha?: string;
 }
 
@@ -69,6 +82,12 @@ export interface NavItemProps {
   state?: {
     login: Location;
   };
+}
+
+export interface AuthContainerProps {
+  nav?: NavigateFunction;
+  goBack?: VoidFunction;
+  children: ReactNode;
 }
 
 export type useStateSetter<T> = React.Dispatch<React.SetStateAction<T>>;

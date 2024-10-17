@@ -1,13 +1,13 @@
 import { PayloadAction } from "@reduxjs/toolkit";
 import supabase from "@/supabase/supabase-client";
-import { FetchedPostsType, IAddLike, IPosts, IUser } from "@/types";
+import { FetchedPostsType, IAddLike, IPosts, IUser } from "@/lib/types";
 import {
   createSlice,
-  createToast,
   filterDate,
   getError,
   parseDate,
-} from "../store-funcs";
+} from "../lib/store-utils";
+import { createToast } from "@/lib/utils";
 
 const initialState: IPosts = {
   insertPost: {
@@ -21,33 +21,6 @@ export const postsSlice = createSlice({
   name: "posts",
   initialState,
   reducers: (create) => ({
-    setContent: create.reducer((state, action: PayloadAction<string>) => {
-      return {
-        ...state,
-        insertPost: {
-          ...state.insertPost,
-          content: action.payload,
-        },
-      };
-    }),
-
-    setTitle: create.reducer((state, action: PayloadAction<string>) => {
-      return {
-        ...state,
-        insertPost: {
-          ...state.insertPost,
-          title: action.payload,
-        },
-      };
-    }),
-
-    setError: create.reducer((state, action: PayloadAction<string>) => {
-      return {
-        ...state,
-        UIError: action.payload,
-      };
-    }),
-
     fetchPosts: create.asyncThunk(
       async (_, { rejectWithValue }) => {
         try {
@@ -63,11 +36,12 @@ export const postsSlice = createSlice({
         }
       },
       {
-        fulfilled: (state, action) => {
+        fulfilled: (state, action: PayloadAction<FetchedPostsType>) => {
+          state.maintain.status = "fulfilled";
           state.UIError = null;
-          const sortedPosts = (
-            action as PayloadAction<FetchedPostsType>
-          ).payload.sort(
+          state.maintain.error = null;
+
+          const sortedPosts = action.payload.sort(
             (post1, post2) =>
               parseDate(post2.date).getTime() - parseDate(post1.date).getTime()
           );
@@ -95,7 +69,7 @@ export const postsSlice = createSlice({
             .from("posts")
             .insert([
               {
-                author: user.data.fullName,
+                author: user.data.username,
                 title: posts.insertPost?.title,
                 content: posts.insertPost?.content,
               },
@@ -113,7 +87,9 @@ export const postsSlice = createSlice({
       },
       {
         fulfilled: (state) => {
+          state.maintain.status = "fulfilled";
           state.UIError = null;
+          state.maintain.error = null;
           state.insertPost.title = "";
           state.insertPost.content = "";
 
@@ -148,7 +124,9 @@ export const postsSlice = createSlice({
       },
       {
         fulfilled: (state) => {
+          state.maintain.status = "fulfilled";
           state.UIError = null;
+          state.maintain.error = null;
           createToast({ text: "Post liked!", icon: "❤️", color: "red" });
         },
         pending: (state) => {
@@ -159,11 +137,38 @@ export const postsSlice = createSlice({
         },
       }
     ),
+
+    setContent: create.reducer((state, action: PayloadAction<string>) => {
+      return {
+        ...state,
+        insertPost: {
+          ...state.insertPost,
+          content: action.payload,
+        },
+      };
+    }),
+
+    setTitle: create.reducer((state, action: PayloadAction<string>) => {
+      return {
+        ...state,
+        insertPost: {
+          ...state.insertPost,
+          title: action.payload,
+        },
+      };
+    }),
+
+    setError: create.reducer((state, action: PayloadAction<string>) => {
+      return {
+        ...state,
+        UIError: action.payload,
+      };
+    }),
   }),
   selectors: {
     selectRecentPosts: (state) => state.fetchedPosts?.slice(0, 6),
     selectPosts: (state) => state.fetchedPosts,
-    selectUIError: (state) => state.UIError,
+    selectPostsError: (state) => state.UIError,
     selectContent: (state) => state.insertPost?.content,
     selectTitle: (state) => state.insertPost?.title,
   },
@@ -172,7 +177,7 @@ export const postsSlice = createSlice({
 export const {
   selectRecentPosts,
   selectPosts,
-  selectUIError,
+  selectPostsError,
   selectTitle,
   selectContent,
 } = postsSlice.selectors;

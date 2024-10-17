@@ -13,8 +13,8 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import NavItem from "./nav-item";
-import { useUser } from "@/hooks/useUser";
-import { useStateSetter } from "@/types";
+import { useUser } from "@/lib/hooks/useUser";
+import { useStateSetter } from "@/lib/types";
 
 const NavContent = ({ setOpen }: { setOpen?: useStateSetter<boolean> }) => {
   const location = useLocation();

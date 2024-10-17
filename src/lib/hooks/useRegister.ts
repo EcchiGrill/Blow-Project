@@ -1,12 +1,12 @@
 import { useForm, SubmitHandler } from "react-hook-form";
-import { IRegisterForm } from "@/types";
-import { useAppDispatch } from "@/store/store-hooks";
-import { registerUser } from "@/store/slices/user-slice";
+import { IRegisterForm } from "../types";
+import { registerUser, setOTPConfirm } from "@/store/slices/user-slice";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "./useUser";
 
-export const useRegisterForm = () => {
-  const dispatch = useAppDispatch();
+export const useRegister = () => {
   const nav = useNavigate();
+  const { isPending, dispatch } = useUser();
 
   const {
     register,
@@ -21,12 +21,17 @@ export const useRegisterForm = () => {
   const emailError = errors["email"]?.message;
   const passwordError = errors["password"]?.message;
 
-  const submitRegister: SubmitHandler<IRegisterForm> = () => {
-    dispatch(registerUser());
-    nav("/");
+  const registerHandler: SubmitHandler<IRegisterForm> = () => {
+    dispatch(registerUser()).then((action) => {
+      if (action.meta.requestStatus === "rejected") return;
+      dispatch(setOTPConfirm(true));
+      nav("confirmation");
+    });
   };
 
-  const submitForm = () => handleSubmit(submitRegister);
+  const submitForm = () => {
+    return handleSubmit(registerHandler);
+  };
 
   return {
     register,
@@ -35,5 +40,6 @@ export const useRegisterForm = () => {
     emailError,
     passwordError,
     submitForm,
+    isPending,
   };
 };

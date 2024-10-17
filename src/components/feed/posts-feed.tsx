@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { MessageCircle, Share2, ThumbsUp } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
-import { usePosts } from "@/hooks/usePosts";
+import { usePosts } from "@/lib/hooks/usePosts";
 import { setContent, setTitle } from "@/store/slices/posts-slice";
 import { Input } from "@/components/ui/input";
 

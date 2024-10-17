@@ -2,17 +2,18 @@ import {
   fetchPosts,
   addLike,
   selectContent,
-  selectUIError,
   selectPosts,
   selectTitle,
   addPost,
   selectRecentPosts,
-  setError,
+  selectPostsError,
 } from "@/store/slices/posts-slice";
-import { useAppDispatch, useAppSelector } from "@/store/store-hooks";
+import { useAppDispatch, useAppSelector } from "@/store/lib/store-hooks";
 import { shallowEqual } from "react-redux";
-import { AsyncFnType } from "@/types";
+import { AsyncFnType } from "@/lib/types";
 import { useEffect } from "react";
+import { useUser } from "./useUser";
+import { createToast } from "../utils";
 
 export const usePosts = () => {
   const dispatch = useAppDispatch();
@@ -20,21 +21,48 @@ export const usePosts = () => {
   const recentPosts = useAppSelector(selectRecentPosts, shallowEqual);
   const content = useAppSelector(selectContent);
   const title = useAppSelector(selectTitle);
-  const error = useAppSelector(selectUIError);
+  const error = useAppSelector(selectPostsError);
+
+  const { isLogged } = useUser();
 
   const updatePosts = (f: AsyncFnType<unknown>) =>
     f().then(() => dispatch(fetchPosts()));
 
   const createPost = () => {
     if (!content || !title) {
-      dispatch(setError("Fill all the fields!"));
+      createToast({
+        text: "Fill all the fields!",
+        icon: "🔴",
+        color: "red",
+        pos: "top-center",
+      });
       return;
     }
+
+    if (!isLogged) {
+      createToast({
+        text: "Login first!",
+        icon: "🔴",
+        color: "red",
+        pos: "top-center",
+      });
+      return;
+    }
+
     const f = async () => dispatch(addPost());
     updatePosts(f);
   };
 
   const likePost = (id: number, likes: number) => {
+    if (!isLogged) {
+      createToast({
+        text: "Login first!",
+        icon: "🔴",
+        color: "red",
+        pos: "top-center",
+      });
+      return;
+    }
     const f = async () => dispatch(addLike({ id: id, likes: likes }));
     updatePosts(f);
   };

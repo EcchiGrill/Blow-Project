@@ -12,10 +12,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Edit, Globe, MapPin } from "lucide-react";
-import { useUser } from "@/hooks/useUser";
+import { useUser } from "@/lib/hooks/useUser";
 
 function ProfileInfo() {
-  const { fullName } = useUser();
+  const { username, fullName, createdAt } = useUser();
   const [isEditing, setIsEditing] = useState(false);
 
   return (
@@ -61,9 +61,10 @@ function ProfileInfo() {
             )}
           </div>
           <div>
-            <h3 className="font-semibold">{fullName}</h3>
-            <p className="text-sm text-primary-foreground">
-              Joined January 2024
+            <h3 className="font-semibold">{username}</h3>
+            <h3 className="font-extralight">{fullName}</h3>
+            <p className="text-sm text-primary-foreground font-medium">
+              Joined at {createdAt}
             </p>
           </div>
         </div>

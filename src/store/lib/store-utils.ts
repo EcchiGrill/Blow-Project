@@ -1,22 +1,17 @@
-import {
-  ErrorType,
-  FetchedPostType,
-  GetErrorType,
-  ICreateToast,
-} from "@/types";
-import toast from "react-hot-toast";
+import { ErrorType, FetchedPostType, GetErrorType, IUser } from "@/lib/types";
 import {
   asyncThunkCreator,
   buildCreateSlice,
   PayloadAction,
 } from "@reduxjs/toolkit";
+import { User } from "@/supabase/db.types";
 
 export const createSlice = buildCreateSlice({
   creators: { asyncThunk: asyncThunkCreator },
 });
 
-export const parseDate = (dateString: string): Date =>
-  new Date(Date.parse(dateString));
+export const parseDate = (dateString: string | undefined): Date =>
+  new Date(Date.parse(dateString!));
 
 export const filterDate = (post: FetchedPostType) => {
   const parsedDate = parseDate(post.date);
@@ -37,24 +32,26 @@ export const filterDate = (post: FetchedPostType) => {
   }
 };
 
+export const getUser = (state: IUser, fetched: User) => {
+  const {
+    user: { username, full_name, email, email_verified },
+    created_at,
+  } = fetched;
+
+  state.data.username = username;
+  state.data.fullName = full_name;
+  state.data.email = email;
+  state.data.email_verified = email_verified;
+  state.data.created_at = created_at;
+  state.data.password = "";
+  state.captcha = "";
+  state.data.otp = "";
+};
+
 export const getError = <I extends GetErrorType>(state: I, action: unknown) => {
   const error = (action as PayloadAction<ErrorType>).payload;
 
-  state.UIError = error.message;
+  state.UIError = error!.message;
   state.maintain.error = error;
   state.maintain.status = "rejected";
-};
-
-export const createToast = ({
-  text,
-  icon,
-  color,
-  pos = "bottom-right",
-}: ICreateToast) => {
-  toast(`${text}`, {
-    duration: 2500,
-    style: { color: `${color}`, paddingRight: "2px" },
-    icon: `${icon}`,
-    position: `${pos}`,
-  });
 };
