@@ -9,70 +9,143 @@ export function getFetchedPostType(db: Database) {
   return db.public.Tables.posts.Row;
 }
 
+export function getFetchedCommentsType(db: Database) {
+  return db.public.Tables.posts.Row.comments;
+}
+
+export function getFetchedProfileType(db: Database) {
+  return db.public.Tables.profiles.Row;
+}
+
 export type FetchedPostType = ReturnType<typeof getFetchedPostType>;
 
 export type FetchedPostsType = FetchedPostType[];
 
-export type ErrorType = PostgrestError | null;
+export type FetchedCommentsType = ReturnType<typeof getFetchedCommentsType>;
 
-export type GetErrorType = {
-  UIError?: string | null | undefined;
-  maintain: {
-    error?: ErrorType | undefined | null;
-    status?: StatusType | undefined;
-  };
+export type FetchedCommentType = {
+  id: string;
+  author: string;
+  avatar: string;
+  content: string;
+  timestamp: string;
+  likes: number;
 };
+
+export type FetchedProfileType = ReturnType<typeof getFetchedProfileType>[];
+
+export type ErrorType = PostgrestError | null;
 
 export type StatusType = "fulfilled" | "pending" | "rejected";
 
-export interface IAddLike {
-  id: number;
-  likes: number;
-}
+type UIErrorType = string | null;
 
-export interface IPosts {
-  fetchedPosts?: FetchedPostsType;
-  UIError?: string | null;
-  insertPost: {
-    title: string;
-    content: string;
-  };
-  maintain: {
-    error?: ErrorType;
-    status?: StatusType;
-  };
-}
+type MaintainType = {
+  error?: ErrorType | null;
+  status?: StatusType;
+};
+
+export type StatusHandlingType = {
+  UIError?: UIErrorType;
+  maintain: MaintainType;
+};
 
 export type SessionType = {
   isLogged?: boolean;
   session: Session | null;
 };
 
+export interface IPostLike {
+  id?: number;
+  likes: number;
+}
+
+export interface ICommentLike {
+  id?: string;
+  likes: number;
+}
+
+export interface IFulfillActivePosts {
+  activeId: number;
+  comments: FetchedCommentsType;
+}
+
+export interface IPosts {
+  fetchedPosts?: FetchedPostsType;
+  UIError?: UIErrorType;
+  maintain: MaintainType;
+  insertPost: {
+    title: string;
+    content: string;
+  };
+  insertComment: {
+    content: string;
+  };
+  comments: {
+    activePostId: number | null;
+    activeComments: FetchedCommentsType | null;
+  };
+}
+
 type UserData = {
+  uid: string;
   otp?: string;
   session?: Session | null;
   email_verified?: boolean;
   created_at?: string;
-  fullName: string;
+  avatar: string;
   username: string;
+  fullName: string;
   email: string;
   password: string;
+  likedPosts: number[];
+  likedComments: string[];
+  bio: string;
+  location: string;
+  status?: string;
+  link: string;
 };
 
 export interface IUser {
+  activeUsers: unknown[];
   isLogged?: boolean;
-  UIError?: string | null;
+  UIError?: UIErrorType;
   data: UserData;
-  maintain: {
-    error?: ErrorType;
-    status?: StatusType;
-  };
+  maintain: MaintainType;
   isBackToLogin: boolean;
   isOTPConfirm: boolean;
   captcha?: string;
 }
 
+type ProfileData = {
+  avatar?: string;
+  status?: "Active" | "Inactive";
+  profileName?: string;
+  createdAt?: string;
+  bio?: string;
+  link?: string;
+  location?: string;
+};
+
+export interface IProfile {
+  UIError?: UIErrorType;
+  data: ProfileData;
+  maintain: MaintainType;
+}
+
 export type AsyncFnType<T> = () => Promise<T>;
+
+export interface ProfileProps {
+  avatar: string;
+  status: string;
+  profileName: string;
+  fullName?: string;
+  createdAt: string;
+  bio: string;
+  location: string;
+  isLocked: boolean;
+  link: string;
+}
 
 export interface NavItemProps {
   Icon: LucideIcon;
@@ -110,3 +183,8 @@ export interface ICreateToast {
   color?: string;
   pos?: ToastPosition;
 }
+export type ILeaderboard = {
+  avatar: string;
+  username: string;
+  posts: number;
+}[];

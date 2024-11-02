@@ -1,7 +1,7 @@
 import Friends from "./friends";
 import Subscribtions from "./subscribtions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import PostsFeed from "./posts-feed";
+import PostsFeed from "./posts-feed/posts-feed";
 
 function Feed() {
   return (
@@ -24,7 +24,7 @@ function Feed() {
       </Tabs>
       <div className="w-full 2xl:flex flex-row gap-8 hidden">
         <Subscribtions className="h-full w-5/12" />
-        <PostsFeed className="w-8/12 3xl:w-10/12" />
+        <PostsFeed className="w-8/12 3xl:max-w-10/12" />
         <Friends className="h-full w-5/12" />
       </div>
     </main>

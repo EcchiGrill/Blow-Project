@@ -20,7 +20,7 @@ import {
 } from "@/store/slices/user-slice";
 import { CAPTCHA_TOKEN } from "@/lib/constants";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AuthContainer from "./auth-container";
 import { useLogin } from "@/lib/hooks/useLogin";
 
@@ -28,7 +28,7 @@ function Login() {
   const nav = useNavigate();
   const location = useLocation();
   const [isPasswordVisible, setPasswordVisible] = useState(false);
-  const { dispatch, email, password, captchaRef } = useUser();
+  const { dispatch, email, password, captchaRef, error } = useUser();
   const {
     register,
     submitForm,
@@ -46,6 +46,10 @@ function Login() {
     }
     return nav(-1);
   };
+
+  useEffect(() => {
+    if (error) captchaRef.current?.resetCaptcha();
+  }, [error, captchaRef]);
 
   return (
     <AuthContainer goBack={goBack}>

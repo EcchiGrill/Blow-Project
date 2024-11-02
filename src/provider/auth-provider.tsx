@@ -2,7 +2,7 @@ import { useCookie } from "react-use";
 import supabase from "@/supabase/supabase-client";
 import { PropsWithChildren, useEffect } from "react";
 import { useAppDispatch } from "@/store/lib/store-hooks";
-import { fetchUser, setSession } from "@/store/slices/user-slice";
+import { fetchProfile, fetchUser, setSession } from "@/store/slices/user-slice";
 
 function AuthProvider({ children }: PropsWithChildren) {
   const dispatch = useAppDispatch();
@@ -20,7 +20,9 @@ function AuthProvider({ children }: PropsWithChildren) {
             isLogged: !data.session ? false : true,
           })
         );
-        if (data.session) dispatch(fetchUser());
+
+        if (data.session)
+          dispatch(fetchUser()).then(() => dispatch(fetchProfile()));
 
         supabase.auth.onAuthStateChange((event, session) => {
           setSessionCookie(session?.access_token || "");

@@ -19,7 +19,7 @@ function Settings() {
   const nav = useNavigate();
   const location = useLocation();
 
-  const { dispatch, isLogged } = useUser();
+  const { dispatch, isLogged, email, fullName } = useUser();
 
   return (
     <main
@@ -55,12 +55,20 @@ function Settings() {
                 <Switch id="newsletter" />
               </div>
               <div className="space-y-2">
+                <Label htmlFor="email">Full Name</Label>
+                <Input
+                  id="fullName"
+                  placeholder="Your full name"
+                  defaultValue={fullName}
+                />
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="email">Email Address</Label>
                 <Input
                   id="email"
                   placeholder="Your email address"
                   type="email"
-                  defaultValue="john.doe@blow.project"
+                  defaultValue={email}
                 />
               </div>
               <div className="space-y-2">

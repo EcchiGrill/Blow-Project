@@ -7,10 +7,13 @@ export type Json =
   | Json[];
 
 export type User = {
+  uid: string;
   user: {
     sub: string;
     email: string;
     username: string;
+    likedPosts: number[];
+    likedComments: string[];
     full_name: string;
     email_verified: boolean;
     phone_verified: boolean;
@@ -24,30 +27,90 @@ export type Database = {
       posts: {
         Row: {
           author: string | null;
-          comments: number | null;
+          avatar: string;
           content: string | null;
           date: string;
           id: number;
           likes: number;
           title: string | null;
+          comments: {
+            id: string;
+            author: string;
+            avatar: string;
+            content: string;
+            timestamp: string;
+            likes: number;
+          }[];
         };
         Insert: {
           author?: string | null;
-          comments?: number | null;
+          avatar?: string;
           content?: string | null;
           date?: string;
           id?: number;
           likes?: number;
           title?: string | null;
+          comments?: {
+            id: string;
+            author: string;
+            avatar: string;
+            content: string;
+            timestamp: string;
+            likes: number;
+          }[];
         };
         Update: {
           author?: string | null;
-          comments?: number | null;
+          avatar?: string;
           content?: string | null;
           date?: string;
           id?: number;
           likes?: number;
           title?: string | null;
+          comments?: {
+            id: string;
+            author: string;
+            avatar: string;
+            content: string;
+            timestamp: string;
+            likes: number;
+          }[];
+        };
+        Relationships: [];
+      };
+      profiles: {
+        Row: {
+          bio: string;
+          created_at: string;
+          full_name: string;
+          uid: string;
+          status: "Active" | "Inactive";
+          username: string;
+          link: string;
+          avatar: string;
+          location: string;
+        };
+        Insert: {
+          bio?: string;
+          created_at?: string;
+          full_name?: string;
+          uid?: string;
+          status?: "Active" | "Inactive";
+          username?: string;
+          link?: string;
+          avatar?: string;
+          location?: string;
+        };
+        Update: {
+          bio?: string;
+          created_at?: string;
+          full_name?: string;
+          uid?: string;
+          status?: "Active" | "Inactive";
+          username?: string;
+          link?: string;
+          avatar?: string;
+          location?: string;
         };
         Relationships: [];
       };
@@ -147,4 +210,19 @@ export type Enums<
   ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
   ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+  : never;
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof PublicSchema["CompositeTypes"]
+    | { schema: keyof Database },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof Database;
+  }
+    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never
+> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
+  ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
   : never;

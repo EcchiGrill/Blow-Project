@@ -67,6 +67,9 @@ export default {
       width: {
         inherit: "inherit",
       },
+      backgroundImage: {
+        dev: "url('/dev.png')",
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],

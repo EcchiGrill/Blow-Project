@@ -23,7 +23,7 @@ import { useUser } from "@/lib/hooks/useUser";
 import { useRegister } from "@/lib/hooks/useRegister";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
 import { CAPTCHA_TOKEN, EMAIL_REGEX, PASSWORD_REGEX } from "@/lib/constants";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AuthContainer from "./auth-container";
 
 function Register() {
@@ -38,6 +38,7 @@ function Register() {
     password,
     isOTPConfirm,
     captchaRef,
+    error,
   } = useUser();
   const {
     register,
@@ -48,6 +49,10 @@ function Register() {
     submitForm,
     isPending,
   } = useRegister();
+
+  useEffect(() => {
+    if (error) captchaRef.current?.resetCaptcha();
+  }, [error, captchaRef]);
 
   return !isOTPConfirm ? (
     <AuthContainer nav={nav}>
