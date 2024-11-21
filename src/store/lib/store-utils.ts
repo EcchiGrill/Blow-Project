@@ -11,6 +11,7 @@ import {
   PayloadAction,
 } from "@reduxjs/toolkit";
 import { User } from "@/supabase/db.types";
+import { AVATAR_PLACEHOLDER } from "@/lib/constants";
 
 export const createSlice = buildCreateSlice({
   creators: { asyncThunk: asyncThunkCreator },
@@ -22,7 +23,10 @@ export const getUser = (state: IUser, fetched: User) => {
       username,
       full_name,
       email,
-      email_verified,
+      avatar,
+      bio,
+      location,
+      link,
       likedPosts,
       likedComments,
     },
@@ -31,22 +35,28 @@ export const getUser = (state: IUser, fetched: User) => {
   } = fetched;
 
   state.data.uid = uid;
+  state.data.email = email;
   state.data.username = username;
   state.data.fullName = full_name;
-  state.data.email = email;
-  state.data.email_verified = email_verified;
+
+  state.data.avatar = avatar || AVATAR_PLACEHOLDER;
+  state.data.bio = bio || "";
+  state.data.location = location || "";
+  state.data.link = link || username.toLowerCase();
+
   state.data.created_at = created_at;
-  state.data.likedPosts = likedPosts;
-  state.data.likedComments = likedComments;
+  state.data.likedPosts = likedPosts || [];
+  state.data.likedComments = likedComments || [];
   state.data.password = "";
   state.captcha = "";
   state.data.otp = "";
 };
 
 export const getProfile = (state: IProfile, fetched: FetchedProfileType) => {
-  const { username, bio, status, created_at, link, avatar, location } =
+  const { username, bio, status, created_at, link, avatar, location, uid } =
     fetched[0];
 
+  state.data.uid = uid;
   state.data.location = location;
   state.data.avatar = avatar;
   state.data.profileName = username;

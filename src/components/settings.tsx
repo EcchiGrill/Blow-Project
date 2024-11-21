@@ -13,13 +13,21 @@ import { Switch } from "@/components/ui/switch";
 import { useUser } from "@/lib/hooks/useUser";
 import { signOut } from "@/store/slices/user-slice";
 import { CornerDownRight } from "lucide-react";
+import { FormEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 function Settings() {
   const nav = useNavigate();
   const location = useLocation();
 
-  const { dispatch, isLogged, email, fullName } = useUser();
+  const { dispatch, isLogged, email } = useUser();
+
+  const prevEmail = email;
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    console.log(email !== prevEmail);
+  };
 
   return (
     <main
@@ -31,68 +39,67 @@ function Settings() {
       {isLogged ? (
         <>
           <Card>
-            <CardHeader>
-              <CardTitle>Account Settings</CardTitle>
-              <CardDescription>Manage your account preferences</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label htmlFor="notifications">Email Notifications</Label>
-                  <p className="text-sm text-primary">
-                    Receive email updates about your account
-                  </p>
+            <form onSubmit={handleSubmit}>
+              <CardHeader>
+                <CardTitle>Account Settings</CardTitle>
+                <CardDescription>
+                  Manage your account preferences
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="notifications">Email Notifications</Label>
+                    <p className="text-sm text-primary">
+                      Receive email updates about your account
+                    </p>
+                  </div>
+                  <Switch id="notifications" />
                 </div>
-                <Switch id="notifications" />
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label htmlFor="newsletter">Newsletter Subscription</Label>
-                  <p className="text-sm text-primary">
-                    Receive our weekly newsletter
-                  </p>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="newsletter">Newsletter Subscription</Label>
+                    <p className="text-sm text-primary">
+                      Receive our weekly newsletter
+                    </p>
+                  </div>
+                  <Switch id="newsletter" />
                 </div>
-                <Switch id="newsletter" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Full Name</Label>
-                <Input
-                  id="fullName"
-                  placeholder="Your full name"
-                  defaultValue={fullName}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
-                <Input
-                  id="email"
-                  placeholder="Your email address"
-                  type="email"
-                  defaultValue={email}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Change Password</Label>
-                <Input
-                  id="password"
-                  placeholder="Enter new password"
-                  type="password"
-                  className="placeholder:text-primary"
-                />
-              </div>
-            </CardContent>
-            <CardFooter className="flex flex-row-reverse gap-4">
-              <Button className="ml-auto text-secondary">Save Settings</Button>
-              <Button
-                variant={"destructive"}
-                onClick={() => {
-                  dispatch(signOut());
-                  nav("/");
-                }}
-              >
-                Sign Out
-              </Button>
-            </CardFooter>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input
+                    id="email"
+                    placeholder="Your email address"
+                    type="email"
+                    defaultValue={email}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password">Change Password</Label>
+                  <Input
+                    id="password"
+                    placeholder="Enter new password"
+                    type="password"
+                    className="placeholder:text-primary"
+                  />
+                </div>
+              </CardContent>
+              <CardFooter className="flex flex-row-reverse gap-4">
+                <Button type="submit" className="ml-auto text-secondary">
+                  Save Settings
+                </Button>
+                <Button
+                  type="button"
+                  variant={"destructive"}
+                  onClick={() => {
+                    dispatch(signOut());
+                    nav("/");
+                  }}
+                >
+                  Sign Out
+                </Button>
+              </CardFooter>
+            </form>
           </Card>
         </>
       ) : (

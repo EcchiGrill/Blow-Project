@@ -1,12 +1,17 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ChevronRight, Heart } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { usePosts } from "@/lib/hooks/usePosts";
 import { getAgoDate } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { AVATAR_PLACEHOLDER } from "@/lib/constants";
+import { useUser } from "@/lib/hooks/useUser";
 
 function RecentPosts() {
+  const { likedPosts } = useUser();
   const { recentPosts, error } = usePosts();
+  const nav = useNavigate();
 
   const getShortDesc = (content: string) => {
     if (content.length < 100) return content;
@@ -37,26 +42,52 @@ function RecentPosts() {
               {recentPosts.map((post) => (
                 <Card
                   key={post.id}
-                  className="flex flex-col xl:max-w-xs h-80 relative"
+                  className="flex flex-col xl:w-72 h-[22rem] relative"
                 >
-                  <CardHeader>
+                  <CardHeader className="pb-4">
                     <CardTitle className="break-words">{post.title}</CardTitle>
                   </CardHeader>
                   <CardContent className="flex flex-col place-content-between h-3/4">
                     <div>
-                      <p className="text-sm text-primary">
-                        By {post.author} • {getAgoDate(post.date)}
+                      <p className="flex items-center space-x-2 text-sm text-primary">
+                        <Avatar
+                          onClick={() => nav(`/profile/${post.link!}`)}
+                          className="cursor-pointer "
+                        >
+                          <AvatarImage
+                            src={post.avatar || AVATAR_PLACEHOLDER}
+                            alt={post.username!}
+                            className="h-6 w-6 rounded-full xl:mt-0.5"
+                          />
+                          <AvatarFallback>{post.username}</AvatarFallback>
+                        </Avatar>
+                        <span>
+                          {post.username} • {getAgoDate(post.date)}
+                        </span>
                       </p>
-                      <p className="mt-2 break-words">
-                        {getShortDesc(post.content!)}
-                      </p>
+                      {post.image![0] ? (
+                        <img src={post.image![0]} className="h-44 w-44 mt-3" />
+                      ) : (
+                        <p className="mt-2 break-words">
+                          {getShortDesc(post.content!)}
+                        </p>
+                      )}
                     </div>
                     <div className="w-5/6 flex flex-col absolute bottom-5">
-                      <p className="text-right font-light max-xs:mb-7">
-                        <b>{post.likes}</b> ❤️
+                      <p className="flex gap-2 items-center justify-end text-base font-light max-xs:mb-7">
+                        <b>{post.likes}</b>
+
+                        <Heart
+                          className="h-5 w-5 mt-0.5"
+                          fill={
+                            likedPosts.includes(post.id)
+                              ? "#fff5ef"
+                              : "transparent"
+                          }
+                        />
                       </p>
                       <Link
-                        to={{ pathname: "/feed", hash: `#post-${post.id}` }}
+                        to={`/feed/post-${post.id}`}
                         className="w-fit max-xs:w-full"
                       >
                         <Button variant="default" className="max-xs:w-full">

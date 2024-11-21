@@ -23,14 +23,7 @@ export type FetchedPostsType = FetchedPostType[];
 
 export type FetchedCommentsType = ReturnType<typeof getFetchedCommentsType>;
 
-export type FetchedCommentType = {
-  id: string;
-  author: string;
-  avatar: string;
-  content: string;
-  timestamp: string;
-  likes: number;
-};
+export type FetchedCommentType = FetchedCommentsType[0];
 
 export type FetchedProfileType = ReturnType<typeof getFetchedProfileType>[];
 
@@ -90,6 +83,7 @@ export interface IPosts {
 type UserData = {
   uid: string;
   otp?: string;
+  remember?: boolean | "indeterminate";
   session?: Session | null;
   email_verified?: boolean;
   created_at?: string;
@@ -118,6 +112,7 @@ export interface IUser {
 }
 
 type ProfileData = {
+  uid?: string;
   avatar?: string;
   status?: "Active" | "Inactive";
   profileName?: string;
@@ -125,6 +120,7 @@ type ProfileData = {
   bio?: string;
   link?: string;
   location?: string;
+  profilePosts?: FetchedPostsType | null;
 };
 
 export interface IProfile {
@@ -139,12 +135,14 @@ export interface ProfileProps {
   avatar: string;
   status: string;
   profileName: string;
-  fullName?: string;
+  fullName: string;
   createdAt: string;
   bio: string;
   location: string;
   isLocked: boolean;
   link: string;
+  profilePosts?: FetchedPostsType | null;
+  profileUID?: string;
 }
 
 export interface NavItemProps {
@@ -184,7 +182,17 @@ export interface ICreateToast {
   pos?: ToastPosition;
 }
 export type ILeaderboard = {
-  avatar: string;
-  username: string;
+  avatar?: string;
+  username?: string;
+  link?: string;
   posts: number;
 }[];
+
+export interface IProfileInfo {
+  file?: File;
+  tempAvatar?: string;
+  postsCount: number;
+  isMorePosts: boolean;
+  link: string;
+  profileName: string;
+}

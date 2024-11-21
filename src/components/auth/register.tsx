@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Check, EyeIcon, EyeOffIcon, Undo2 } from "lucide-react";
+import { Check, EyeIcon, EyeOffIcon, LoaderIcon, Undo2 } from "lucide-react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   setEmail,
@@ -58,7 +58,10 @@ function Register() {
     <AuthContainer nav={nav}>
       <Card className="mx-5 w-full max-w-md z-10 bg-secondary-muted border-none">
         <CardHeader>
-          <a className="w-min cursor-pointer" onClick={() => nav("/")}>
+          <a
+            className="w-min cursor-pointer hover:rotate-12 transition duration-300"
+            onClick={() => nav("/")}
+          >
             <Undo2 width={28} height={28} />
           </a>
           <CardTitle className="text-2xl font-bold text-center">
@@ -180,8 +183,11 @@ function Register() {
               />
             </div>
             <div className="w-full text-center mt-4">
-              <Button className="w-1/5" type="submit" disabled={isPending}>
-                Register
+              <Button className="w-2/5" type="submit" disabled={isPending}>
+                {isPending && (
+                  <LoaderIcon className="animate-spin h-5 w-5 mr-1 mt-0.5" />
+                )}
+                {isPending ? "Registering..." : "Register"}
               </Button>
             </div>
           </form>
@@ -192,7 +198,7 @@ function Register() {
             <NavLink
               to="/login"
               state={{ login: location }}
-              className="text-blue-500 ml-2 hover:underline"
+              className="text-blue-500 font-semibold ml-2 hover:underline"
               onClick={() => dispatch(setIsBackToLogin(true))}
             >
               Login

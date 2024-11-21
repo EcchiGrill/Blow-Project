@@ -11,10 +11,12 @@ import {
   selectActivePostId,
   insertPost,
   updatePostLikes,
+  insertComment,
+  setCommentContent,
 } from "@/store/slices/posts-slice";
 import { useAppDispatch, useAppSelector } from "@/store/lib/store-hooks";
 import { shallowEqual } from "react-redux";
-import { AsyncFnType } from "@/lib/types";
+import { AsyncFnType, useStateSetter } from "@/lib/types";
 import { createToast } from "../utils";
 import {
   addLikedPost,
@@ -22,6 +24,9 @@ import {
   selectLikedPosts,
   selectLogged,
 } from "@/store/slices/user-slice";
+import { CLOUDINARY_KEY } from "../constants";
+import { FormEvent, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export const usePosts = () => {
   const dispatch = useAppDispatch();
@@ -37,10 +42,46 @@ export const usePosts = () => {
   const likedPosts = useAppSelector(selectLikedPosts);
   const isLogged = useAppSelector(selectLogged);
 
+  const nav = useNavigate();
+
+  const [isPosting, setPosting] = useState(false);
+
+  const [isSending, setSending] = useState(false);
+
   const updatePosts = (f: AsyncFnType<unknown>) =>
     f().then(() => dispatch(fetchPosts()));
 
-  const createPost = () => {
+  const getImageLinks = async (images: string[]) => {
+    const links: string[] = [];
+
+    for (let img of images) {
+      const formData = new FormData();
+
+      formData.append("file", img);
+      formData.append("upload_preset", "ml_default");
+      formData.append("api_key", CLOUDINARY_KEY!);
+
+      const data = await fetch(
+        "https://api.cloudinary.com/v1_1/blow-project/image/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      ).then((r) => r.json());
+
+      links.push(data.url);
+    }
+
+    return { links };
+  };
+
+  const handleCreate = (
+    e: FormEvent,
+    images: string[],
+    setImages: useStateSetter<string[]>
+  ) => {
+    e.preventDefault();
+
     if (!isLogged) {
       createToast({
         text: "Login first!",
@@ -51,7 +92,7 @@ export const usePosts = () => {
       return;
     }
 
-    if (!content || !title) {
+    if ((!content || !title.trim()) && !images.length) {
       createToast({
         text: "Fill all the fields!",
         icon: "🔴",
@@ -71,8 +112,73 @@ export const usePosts = () => {
       return;
     }
 
-    const f = async () => dispatch(insertPost());
-    updatePosts(f);
+    if (content.length > 2000) {
+      createToast({
+        text: "Hey, chop your content down!",
+        icon: "🪓",
+        color: "red",
+        pos: "top-center",
+      });
+      return;
+    }
+
+    setPosting(true);
+
+    getImageLinks(images).then(({ links }) => {
+      const f = async () => dispatch(insertPost(links));
+      updatePosts(f);
+      setImages([]);
+
+      nav("/feed");
+      setPosting(false);
+    });
+  };
+
+  const handleCommentSubmit = async (
+    e: FormEvent,
+    images: string[],
+    setImages: useStateSetter<string[]>
+  ) => {
+    e.preventDefault();
+
+    if (!isLogged) {
+      createToast({
+        text: "Login first!",
+        icon: "🔴",
+        color: "red",
+        pos: "top-center",
+      });
+      return;
+    }
+
+    if (!commentContent.trim() && !images.length) {
+      createToast({
+        text: "Fill all the fields!",
+        icon: "🔴",
+        color: "red",
+        pos: "top-center",
+      });
+      return;
+    }
+
+    if (commentContent.length > 2000) {
+      createToast({
+        text: "Hey, chop your comment down!",
+        icon: "🪓",
+        color: "red",
+        pos: "top-center",
+      });
+      return;
+    }
+
+    setSending(true);
+
+    getImageLinks(images).then(({ links }) => {
+      dispatch(insertComment(links));
+      dispatch(setCommentContent(""));
+      setImages([]);
+      setSending(false);
+    });
   };
 
   const handlePostLike = (id: number, likes: number) => {
@@ -111,11 +217,14 @@ export const usePosts = () => {
     error,
     dispatch,
     handlePostLike,
-    createPost,
+    handleCreate,
     isPending,
     commentContent,
     activeComments,
     activeId,
     likedPosts,
+    handleCommentSubmit,
+    isPosting,
+    isSending,
   };
 };

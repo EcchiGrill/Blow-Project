@@ -9,14 +9,15 @@ export type Json =
 export type User = {
   uid: string;
   user: {
-    sub: string;
     email: string;
     username: string;
+    full_name: string;
+    avatar: string;
+    bio: string;
+    location: string;
+    link: string;
     likedPosts: number[];
     likedComments: string[];
-    full_name: string;
-    email_verified: boolean;
-    phone_verified: boolean;
   };
   created_at: string;
 };
@@ -26,51 +27,56 @@ export type Database = {
     Tables: {
       posts: {
         Row: {
-          author: string | null;
-          avatar: string;
+          author: string;
+          username?: string;
+          avatar?: string;
+          link?: string;
+          text: string;
           content: string | null;
           date: string;
+          image?: string[];
           id: number;
           likes: number;
           title: string | null;
           comments: {
             id: string;
             author: string;
-            avatar: string;
+            username?: string;
+            link?: string;
+            avatar?: string;
+            image?: string[];
             content: string;
             timestamp: string;
             likes: number;
           }[];
         };
         Insert: {
-          author?: string | null;
-          avatar?: string;
+          author?: string;
           content?: string | null;
           date?: string;
           id?: number;
+          image?: string[];
           likes?: number;
           title?: string | null;
           comments?: {
             id: string;
             author: string;
-            avatar: string;
             content: string;
             timestamp: string;
             likes: number;
           }[];
         };
         Update: {
-          author?: string | null;
-          avatar?: string;
+          author?: string;
           content?: string | null;
           date?: string;
+          image?: string[];
           id?: number;
           likes?: number;
           title?: string | null;
           comments?: {
             id: string;
             author: string;
-            avatar: string;
             content: string;
             timestamp: string;
             likes: number;

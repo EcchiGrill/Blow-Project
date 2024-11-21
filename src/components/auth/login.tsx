@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { EyeIcon, EyeOffIcon, Undo2 } from "lucide-react";
+import { EyeIcon, EyeOffIcon, LoaderIcon, Undo2 } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useUser } from "@/lib/hooks/useUser";
 import {
@@ -17,12 +17,14 @@ import {
   setPassword,
   setCaptcha,
   setIsBackToLogin,
+  setRemember,
 } from "@/store/slices/user-slice";
 import { CAPTCHA_TOKEN } from "@/lib/constants";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
 import { useEffect, useState } from "react";
 import AuthContainer from "./auth-container";
 import { useLogin } from "@/lib/hooks/useLogin";
+import { Checkbox } from "../ui/checkbox";
 
 function Login() {
   const nav = useNavigate();
@@ -53,9 +55,12 @@ function Login() {
 
   return (
     <AuthContainer goBack={goBack}>
-      <Card className="m-4 w-full max-w-md z-10 bg-secondary-muted border-none">
+      <Card className="m-4 w-full max-w-[23rem] z-10 bg-secondary-muted border-none">
         <CardHeader>
-          <a className="w-min cursor-pointer" onClick={goBack}>
+          <a
+            className="w-min cursor-pointer hover:rotate-12 transition duration-300"
+            onClick={goBack}
+          >
             <Undo2 width={28} height={28} />
           </a>
           <CardTitle className="text-2xl font-bold text-center">
@@ -65,9 +70,9 @@ function Login() {
             Sign in to get started with Blow Project
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-8">
           <form onSubmit={submitForm()}>
-            <div className="space-y-4">
+            <div className="space-y-4 mb-3">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -117,6 +122,29 @@ function Login() {
                 {passwordError && <p className="text-error">{passwordError}</p>}
               </div>
             </div>
+            <div className="flex justify-between px-1">
+              <div className="flex items-center">
+                <Checkbox
+                  id="remember"
+                  onCheckedChange={(e) =>
+                    dispatch(setRemember(e), console.log(e))
+                  }
+                />
+                <label
+                  htmlFor="remember"
+                  className="ml-1.5 text-sm font-normal"
+                >
+                  Remember me
+                </label>
+              </div>
+              <NavLink
+                className="text-sm font-normal hover:opacity-75 transition duration-300"
+                to="/restore-password"
+              >
+                Forgot your password?
+              </NavLink>
+            </div>
+
             <div className="mt-5 w-full flex place-content-center">
               <HCaptcha
                 ref={captchaRef}
@@ -125,8 +153,11 @@ function Login() {
               />
             </div>
             <div className="w-full text-center mt-5">
-              <Button className="w-1/5" type="submit" disabled={isPending}>
-                Log in
+              <Button className="w-2/5" type="submit" disabled={isPending}>
+                {isPending && (
+                  <LoaderIcon className="animate-spin h-5 w-5 mr-1 mt-0.5" />
+                )}
+                {isPending ? "Logging..." : "Log in"}
               </Button>
             </div>
           </form>
@@ -136,7 +167,7 @@ function Login() {
             Don't have an account?
             <NavLink
               to="/register"
-              className="text-blue-500 ml-2 hover:underline"
+              className="text-blue-500 font-semibold ml-2 hover:underline"
               state={{ register: location }}
             >
               Register

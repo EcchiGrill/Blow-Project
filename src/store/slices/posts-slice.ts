@@ -35,13 +35,46 @@ export const postsSlice = createSlice({
     fetchPosts: create.asyncThunk(
       async (_, { rejectWithValue }) => {
         try {
-          const { data, error } = await supabase.from("posts").select();
+          const posts = await (await supabase.from("posts").select()).data;
 
-          if (error) {
-            throw new Error(error.message);
+          const profiles = await (
+            await supabase.from("profiles").select()
+          ).data;
+
+          if (!posts || !profiles) {
+            throw new Error();
           }
 
-          return data;
+          const data = posts.map((post) => {
+            const filtered = profiles.find(
+              (profile) => profile.uid === post.author
+            );
+
+            post.username = filtered?.username;
+            post.avatar = filtered?.avatar;
+            post.link = filtered?.link;
+
+            post.comments = post.comments.map((comment) => {
+              const filtered = profiles.find(
+                (profile) => profile.uid === comment.author
+              );
+
+              comment.username = filtered?.username;
+              comment.avatar = filtered?.avatar;
+              comment.link = filtered?.link;
+
+              return comment;
+            });
+
+            return post;
+          });
+
+          const sortedPosts = data.sort(
+            (post1, post2) =>
+              parseDate(post2.date).getTime() - parseDate(post1.date).getTime()
+          );
+
+          return sortedPosts;
         } catch (e) {
           return rejectWithValue(e);
         }
@@ -49,13 +82,7 @@ export const postsSlice = createSlice({
       {
         fulfilled: (state, action: PayloadAction<FetchedPostsType>) => {
           handleFulfill(state);
-
-          const sortedPosts = action.payload.sort(
-            (post1, post2) =>
-              parseDate(post2.date).getTime() - parseDate(post1.date).getTime()
-          );
-
-          state.fetchedPosts = sortedPosts;
+          state.fetchedPosts = action.payload;
         },
         pending: (state) => {
           state.maintain.status = "pending";
@@ -67,7 +94,7 @@ export const postsSlice = createSlice({
     ),
 
     insertPost: create.asyncThunk(
-      async (_, { getState, rejectWithValue }) => {
+      async (image: string[], { getState, rejectWithValue }) => {
         try {
           const { posts, user } = getState() as {
             posts: IPosts;
@@ -76,10 +103,10 @@ export const postsSlice = createSlice({
 
           const { error } = await supabase.from("posts").insert([
             {
-              avatar: user.data.avatar,
-              author: user.data.username,
+              author: user.data.uid,
               title: posts.insertPost?.title,
               content: posts.insertPost?.content,
+              image: image,
             },
           ]);
 
@@ -209,18 +236,34 @@ export const postsSlice = createSlice({
 
           if (!posts.comments.activePostId) throw new Error();
 
-          const { data, error } = await supabase
-            .from("posts")
-            .select()
-            .eq("id", posts.comments.activePostId);
+          const profiles = (await supabase.from("profiles").select()).data;
+          const post = (
+            await supabase
+              .from("posts")
+              .select()
+              .eq("id", posts.comments.activePostId)
+              .select()
+          ).data;
 
-          if (error) {
-            throw new Error(error.message);
+          const data = post![0].comments.map((comment) => {
+            const filtered = profiles?.find(
+              (profile) => profile.uid === comment.author
+            );
+
+            comment.username = filtered?.username;
+            comment.avatar = filtered?.avatar;
+            comment.link = filtered?.link;
+
+            return comment;
+          });
+
+          if (!profiles || !post) {
+            throw new Error();
           }
 
           return {
             activeId: posts.comments.activePostId,
-            comments: data[0].comments,
+            comments: data,
           };
         } catch (error) {
           return rejectWithValue(error);
@@ -245,7 +288,7 @@ export const postsSlice = createSlice({
     ),
 
     insertComment: create.asyncThunk(
-      async (_, { getState, rejectWithValue }) => {
+      async (image: string[], { getState, rejectWithValue }) => {
         try {
           const { posts, user } = getState() as {
             posts: IPosts;
@@ -256,9 +299,9 @@ export const postsSlice = createSlice({
 
           const comment: FetchedCommentType = {
             id: self.crypto.randomUUID().toString(),
-            author: user.data.username,
-            avatar: user.data.avatar,
+            author: user.data.uid,
             content: posts.insertComment.content,
+            image: image,
             timestamp: new Date().toISOString(),
             likes: 0,
           };
@@ -267,21 +310,37 @@ export const postsSlice = createSlice({
             ? posts.comments.activeComments.concat(comment)
             : [comment];
 
-          const { data, error } = await supabase
-            .from("posts")
-            .update({
-              comments: comments,
-            })
-            .eq("id", posts.comments.activePostId)
-            .select();
+          const profiles = (await supabase.from("profiles").select()).data;
 
-          if (error) {
-            throw new Error(error.message);
+          const post = (
+            await supabase
+              .from("posts")
+              .update({
+                comments: comments,
+              })
+              .eq("id", posts.comments.activePostId)
+              .select()
+          ).data;
+
+          const data = post![0].comments.map((comment) => {
+            const filtered = profiles?.find(
+              (profile) => profile.uid === comment.author
+            );
+
+            comment.username = filtered?.username;
+            comment.avatar = filtered?.avatar;
+            comment.link = filtered?.link;
+
+            return comment;
+          });
+
+          if (!profiles || !post) {
+            throw new Error();
           }
 
           return {
             activeId: posts.comments.activePostId,
-            comments: data[0].comments,
+            comments: data,
           };
         } catch (error) {
           return rejectWithValue(error);

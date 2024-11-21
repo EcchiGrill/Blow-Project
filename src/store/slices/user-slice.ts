@@ -3,10 +3,10 @@ import { PayloadAction } from "@reduxjs/toolkit";
 import supabase from "@/supabase/supabase-client";
 import { createSlice, getError, getUser } from "../lib/store-utils";
 import { createToast } from "@/lib/utils";
-import { FetchedProfileType, IUser, SessionType } from "@/lib/types";
+import { IUser, SessionType } from "@/lib/types";
 import { User } from "@/supabase/db.types";
-import { Session } from "@supabase/supabase-js";
-import { AVATAR_EXPIRE } from "@/lib/constants";
+import { Session, UserMetadata } from "@supabase/supabase-js";
+import { AVATAR_EXPIRE, AVATAR_PLACEHOLDER } from "@/lib/constants";
 
 const initialState: IUser = {
   activeUsers: [],
@@ -43,6 +43,18 @@ export const userSlice = createSlice({
           if (!user.captcha)
             throw new Error("Don't forget to complete Captcha!");
 
+          if (user.data.username.length > 50)
+            throw new Error("Your username is too long!");
+
+          if (user.data.username.length < 3)
+            throw new Error("Your username is too short!");
+
+          if (user.data.fullName.length > 50)
+            throw new Error("Your full name is too long!");
+
+          if (user.data.fullName.length < 3)
+            throw new Error("Your full name is too short!");
+
           const checkUsername = async () => {
             const { data } = await supabase
               .from("profiles")
@@ -62,7 +74,11 @@ export const userSlice = createSlice({
             options: {
               data: {
                 username: user.data.username,
+                avatar: AVATAR_PLACEHOLDER,
                 full_name: user.data.fullName,
+                bio: "",
+                location: "",
+                link: user.data.username.toLowerCase(),
                 likedPosts: user.data.likedPosts,
                 likedComments: user.data.likedComments,
               },
@@ -73,10 +89,11 @@ export const userSlice = createSlice({
           await supabase.from("profiles").insert([
             {
               uid: data.user?.id,
-              username: user.data.username,
+              username: data.user?.user_metadata.username,
+              avatar: data.user?.user_metadata.avatar,
               full_name: data.user?.user_metadata.full_name,
               created_at: data.user?.created_at,
-              link: data.user?.user_metadata.username.toLowerCase(),
+              link: data.user?.user_metadata.link,
             },
           ]);
 
@@ -259,50 +276,6 @@ export const userSlice = createSlice({
       }
     ),
 
-    fetchProfile: create.asyncThunk(
-      async (_, { getState, rejectWithValue }) => {
-        try {
-          const { user } = getState() as {
-            user: IUser;
-          };
-
-          const { data, error } = await supabase
-            .from("profiles")
-            .select()
-            .eq("uid", user.data.uid)
-            .select();
-
-          if (error) {
-            throw new Error(error.message);
-          }
-
-          return data;
-        } catch (error) {
-          return rejectWithValue(error);
-        }
-      },
-
-      {
-        fulfilled: (state, action: PayloadAction<FetchedProfileType>) => {
-          handleFulfill(state);
-          state.data.avatar = action.payload[0].avatar;
-          state.data.status = action.payload[0].status;
-          state.data.bio = action.payload[0].bio;
-          state.data.location = action.payload[0].location;
-          state.data.link = action.payload[0].link;
-        },
-
-        pending: (state) => {
-          state.maintain.status = "pending";
-        },
-
-        rejected: (state, action) => {
-          state.isLogged = false;
-          getError<IUser>(state, action);
-        },
-      }
-    ),
-
     signOut: create.asyncThunk(
       async (_, { rejectWithValue }) => {
         try {
@@ -322,6 +295,17 @@ export const userSlice = createSlice({
 
           state.data.session = null;
           state.isLogged = false;
+
+          state.data.uid = "";
+          state.data.username = "";
+          state.data.created_at = "";
+          state.data.fullName = "";
+          state.data.avatar = "";
+          state.data.location = "";
+          state.data.bio = "";
+          state.data.link = "";
+          state.data.likedComments = [];
+          state.data.likedPosts = [];
 
           createToast({
             text: "Logged out successfully!",
@@ -343,6 +327,85 @@ export const userSlice = createSlice({
             color: "red",
             pos: "top-center",
           });
+        },
+      }
+    ),
+    updateUsername: create.asyncThunk(
+      async (
+        { username, uid }: { username: string; uid: string },
+        { rejectWithValue }
+      ) => {
+        try {
+          const { data, error } = await supabase.auth.updateUser({
+            data: { username },
+          });
+
+          await supabase
+            .from("profiles")
+            .update({ username: data.user?.user_metadata.username })
+            .eq("uid", uid)
+            .select();
+
+          if (error) throw new Error(error.message);
+
+          return data.user.user_metadata.username;
+        } catch (error) {
+          return rejectWithValue(error);
+        }
+      },
+
+      {
+        fulfilled: (state, action: PayloadAction<string>) => {
+          handleFulfill(state);
+          state.data.username = action.payload;
+        },
+
+        pending: (state) => {
+          state.maintain.status = "pending";
+        },
+
+        rejected: (state, action) => {
+          getError<IUser>(state, action);
+        },
+      }
+    ),
+
+    updateFullname: create.asyncThunk(
+      async (
+        { full_name, uid }: { full_name: string; uid: string },
+        { rejectWithValue }
+      ) => {
+        try {
+          const { data, error } = await supabase.auth.updateUser({
+            data: { full_name },
+          });
+
+          await supabase
+            .from("profiles")
+            .update({ full_name: data.user?.user_metadata.full_name })
+            .eq("uid", uid)
+            .select();
+
+          if (error) throw new Error(error.message);
+
+          return data.user.user_metadata.full_name;
+        } catch (error) {
+          return rejectWithValue(error);
+        }
+      },
+
+      {
+        fulfilled: (state, action: PayloadAction<string>) => {
+          handleFulfill(state);
+          state.data.fullName = action.payload;
+        },
+
+        pending: (state) => {
+          state.maintain.status = "pending";
+        },
+
+        rejected: (state, action) => {
+          getError<IUser>(state, action);
         },
       }
     ),
@@ -390,9 +453,15 @@ export const userSlice = createSlice({
         { rejectWithValue }
       ) => {
         try {
-          const { data, error } = await supabase
+          const { data, error } = await supabase.auth.updateUser({
+            data: {
+              bio: bio,
+            },
+          });
+
+          await supabase
             .from("profiles")
-            .update({ bio: bio })
+            .update({ bio: data.user?.user_metadata.bio })
             .eq("uid", uid)
             .select();
 
@@ -400,16 +469,16 @@ export const userSlice = createSlice({
             throw new Error(error.message);
           }
 
-          return data;
+          return data.user.user_metadata;
         } catch (error) {
           return rejectWithValue(error);
         }
       },
 
       {
-        fulfilled: (state, action: PayloadAction<FetchedProfileType>) => {
+        fulfilled: (state, action: PayloadAction<UserMetadata>) => {
           handleFulfill(state);
-          state.data.bio = action.payload[0].bio;
+          state.data.bio = action.payload.user.bio;
         },
 
         pending: (state) => {
@@ -434,9 +503,15 @@ export const userSlice = createSlice({
         { rejectWithValue }
       ) => {
         try {
-          const { data, error } = await supabase
+          const { data, error } = await supabase.auth.updateUser({
+            data: {
+              link: link,
+            },
+          });
+
+          await supabase
             .from("profiles")
-            .update({ link: link })
+            .update({ link: data.user?.user_metadata.link })
             .eq("uid", uid)
             .select();
 
@@ -444,14 +519,14 @@ export const userSlice = createSlice({
             throw new Error(error.message);
           }
 
-          return data;
+          return data.user.user_metadata;
         } catch (error) {
           return rejectWithValue(error);
         }
       },
 
       {
-        fulfilled: (state, action: PayloadAction<FetchedProfileType>) => {
+        fulfilled: (state, action: PayloadAction<UserMetadata>) => {
           handleFulfill(state);
           state.data.link = action.payload[0].link;
         },
@@ -478,9 +553,15 @@ export const userSlice = createSlice({
         { rejectWithValue }
       ) => {
         try {
-          const { data, error } = await supabase
+          const { data, error } = await supabase.auth.updateUser({
+            data: {
+              location: location,
+            },
+          });
+
+          await supabase
             .from("profiles")
-            .update({ location: location })
+            .update({ location: data.user?.user_metadata.location })
             .eq("uid", uid)
             .select();
 
@@ -488,14 +569,14 @@ export const userSlice = createSlice({
             throw new Error(error.message);
           }
 
-          return data;
+          return data.user.user_metadata;
         } catch (error) {
           return rejectWithValue(error);
         }
       },
 
       {
-        fulfilled: (state, action: PayloadAction<FetchedProfileType>) => {
+        fulfilled: (state, action: PayloadAction<UserMetadata>) => {
           handleFulfill(state);
           state.data.location = action.payload[0].location;
         },
@@ -517,12 +598,14 @@ export const userSlice = createSlice({
     ),
 
     uploadAvatar: create.asyncThunk(
-      async (
-        { file, link }: { file: File; link: string },
-        { rejectWithValue }
-      ) => {
+      async (file: File, { getState, rejectWithValue }) => {
         try {
-          const avatarLink = `private/${link}.png`;
+          debugger;
+          const { user } = getState() as {
+            user: IUser;
+          };
+
+          const avatarLink = `private/${user.data.uid}.png`;
 
           await supabase.storage.from("profile_pics").upload(avatarLink, file, {
             cacheControl: "3600",
@@ -536,14 +619,20 @@ export const userSlice = createSlice({
           await supabase
             .from("profiles")
             .update({ avatar: data?.signedUrl })
-            .eq("link", link)
+            .eq("uid", user.data.uid)
             .select();
+
+          await supabase.auth.updateUser({
+            data: {
+              avatar: data?.signedUrl,
+            },
+          });
 
           if (error) {
             throw new Error(error.message);
           }
 
-          return data.signedUrl;
+          return data?.signedUrl;
         } catch (error) {
           return rejectWithValue(error);
         }
@@ -612,6 +701,7 @@ export const userSlice = createSlice({
     ),
 
     setLink: create.reducer((state, action: PayloadAction<string>) => {
+      debugger;
       return {
         ...state,
         data: {
@@ -733,6 +823,15 @@ export const userSlice = createSlice({
         isOTPConfirm: action.payload,
       };
     }),
+
+    setRemember: create.reducer(
+      (state, action: PayloadAction<boolean | "indeterminate">) => {
+        return {
+          ...state,
+          remember: action.payload,
+        };
+      }
+    ),
   }),
 
   selectors: {
@@ -759,6 +858,7 @@ export const userSlice = createSlice({
     selectLocation: (state) => state.data.location,
     selectLink: (state) => state.data.link,
     selectAvatar: (state) => state.data.avatar,
+    selectRemember: (state) => state.data.remember,
   },
 });
 
@@ -785,6 +885,7 @@ export const {
   selectBio,
   selectLink,
   selectAvatar,
+  selectRemember,
 } = userSlice.selectors;
 export const {
   loginUser,
@@ -810,11 +911,13 @@ export const {
   setBio,
   setLocation,
   updateBio,
-  fetchProfile,
   uploadAvatar,
   updateLink,
   updateLocation,
   setLink,
+  setRemember,
+  updateUsername,
+  updateFullname,
 } = userSlice.actions;
 
 export default userSlice.reducer;

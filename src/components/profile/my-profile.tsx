@@ -4,10 +4,14 @@ import ProfileInfo from "./profile-info";
 import { Link, useLocation } from "react-router-dom";
 import { CornerDownRight } from "lucide-react";
 import { useUser } from "@/lib/hooks/useUser";
+import { usePosts } from "@/lib/hooks/usePosts";
+import { useEffect } from "react";
+import { fetchPosts } from "@/store/slices/posts-slice";
 
 function MyProfile() {
   const location = useLocation();
   const {
+    dispatch,
     isLogged,
     username,
     fullName,
@@ -17,7 +21,14 @@ function MyProfile() {
     link,
     avatar,
     myLocation,
+    uid,
   } = useUser();
+
+  const { posts } = usePosts();
+
+  useEffect(() => {
+    dispatch(fetchPosts());
+  }, [dispatch]);
 
   return (
     <main
@@ -32,7 +43,7 @@ function MyProfile() {
             <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="activity">Activity</TabsTrigger>
           </TabsList>
-          <TabsContent value="profile">
+          <TabsContent value="profile" style={{ outline: 0 }}>
             <ProfileInfo
               avatar={avatar}
               profileName={username}
@@ -43,6 +54,7 @@ function MyProfile() {
               bio={bio!}
               link={link}
               isLocked={false}
+              profilePosts={posts?.filter((post) => post.author === uid)}
             />
           </TabsContent>
           <TabsContent value="activity">

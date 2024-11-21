@@ -27,12 +27,13 @@ export default {
           foreground: "hsl(var(--popover-foreground))",
         },
         primary: {
-          DEFAULT: "#fff5d2",
-          muted: "#f2e8c7",
+          DEFAULT: "#fff5ef",
+          muted: "#fff5ef",
         },
         secondary: {
-          DEFAULT: "#576c33",
-          muted: "#5e7055",
+          DEFAULT: "#5e6182",
+          muted: "#5e6182",
+          title: "#695078",
         },
         error: {
           DEFAULT: "#cc5547",

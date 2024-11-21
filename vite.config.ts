@@ -4,7 +4,12 @@ import path from "path";
 
 type processEnvType = { [key: string]: string };
 
-const cherryPickedKeys = ["SUPABASE_URL", "SUPABASE_ANON_KEY", "CAPTCHA_KEY"];
+const cherryPickedKeys = [
+  "SUPABASE_URL",
+  "SUPABASE_ANON_KEY",
+  "CAPTCHA_KEY",
+  "CLOUDINARY_KEY",
+];
 
 // https://vitejs.dev/config/
 export default ({ mode }: { mode: string }) => {

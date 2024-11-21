@@ -7,26 +7,30 @@ import {
   selectProfileLocation,
   selectProfileName,
   selectProfileStatus,
+  selectProfileUID,
 } from "@/store/slices/profile-slice";
 
 export const useProfile = () => {
   const dispatch = useAppDispatch();
   const status = useAppSelector(selectProfileStatus);
   const profileName = useAppSelector(selectProfileName);
-  const bio = useAppSelector(selectProfileBio);
-  const location = useAppSelector(selectProfileLocation);
+  const profileBio = useAppSelector(selectProfileBio);
+  const profileLocation = useAppSelector(selectProfileLocation);
   const createdAt = useAppSelector(selectProfileCreatedAt);
   const error = useAppSelector(selectProfileError);
   const avatar = useAppSelector(selectProfileAvatar);
+  const uid = useAppSelector(selectProfileUID);
 
   return {
     dispatch,
     status,
-    bio,
+    profileBio,
+    profileLocation,
     profileName,
     createdAt,
     error,
     avatar,
     location,
+    uid,
   };
 };

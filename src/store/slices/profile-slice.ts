@@ -56,6 +56,7 @@ export const profileSlice = createSlice({
     selectProfileBio: (state) => state.data.bio,
     selectProfileLocation: (state) => state.data.location,
     selectProfileError: (state) => state.UIError,
+    selectProfileUID: (state) => state.data.uid,
   },
 });
 
@@ -67,6 +68,7 @@ export const {
   selectProfileLocation,
   selectProfileError,
   selectProfileAvatar,
+  selectProfileUID,
 } = profileSlice.selectors;
 export const { fetchProfilePage } = profileSlice.actions;
 

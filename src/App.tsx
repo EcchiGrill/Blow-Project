@@ -34,6 +34,7 @@ function App() {
       },
     },
     { path: "feed", element: Feed },
+    { path: "/feed/:postlink", element: Feed },
     { path: "profile", element: MyProfile },
     { path: "/profile/:userlink", element: Profile },
     { path: "settings", element: Settings },

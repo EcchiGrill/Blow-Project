@@ -12,7 +12,7 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { ArrowRight, Mail, Undo2 } from "lucide-react";
+import { ArrowRight, LoaderIcon, Mail, Undo2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AuthContainer from "./auth-container";
 import {
@@ -51,8 +51,8 @@ function OTPConfirm() {
 
   const confirmHandler = () => {
     dispatch(confirmEmail()).then(() => {
-      dispatch(fetchUser());
       nav("/");
+      dispatch(fetchUser());
     });
   };
 
@@ -64,7 +64,7 @@ function OTPConfirm() {
     <AuthContainer nav={nav}>
       <Card className="mx-5 w-full relative max-w-md z-10 min-h-[28rem] bg-secondary-muted border-none">
         <a
-          className="w-min absolute top-6 left-6 cursor-pointer"
+          className="w-min absolute top-6 left-6 cursor-pointer hover:rotate-12 transition duration-300"
           onClick={() => {
             dispatch(setOTPConfirm(false));
             nav("/");
@@ -103,17 +103,20 @@ function OTPConfirm() {
                 </InputOTP>
               </div>
               <Button className="w-full" type="submit" disabled={isPending}>
-                Verify
-                <ArrowRight className="ml-2 h-4 w-4" />
+                {isPending && (
+                  <LoaderIcon className="animate-spin h-5 w-5 mr-1 mt-0.5" />
+                )}
+                {isPending ? "Verifying..." : "Verify"}
+                {!isPending && <ArrowRight className="ml-2 h-4 w-4" />}
               </Button>
             </div>
           </form>
         </CardContent>
-        <CardFooter className="flex w-full absolute bottom-2 flex-col space-y-4">
+        <CardFooter className="flex w-full absolute bottom-3 flex-col space-y-4">
           <div className="text-sm text-center text-primary dark:text-gray-400">
             Didn't receive the code?
             <a
-              className="text-blue-500 ml-2 hover:underline cursor-pointer"
+              className="text-blue-500 font-semibold ml-2 hover:underline cursor-pointer"
               onClick={resendEmail}
             >
               Resend

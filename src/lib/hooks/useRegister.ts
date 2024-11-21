@@ -24,7 +24,9 @@ export const useRegister = () => {
   const registerHandler: SubmitHandler<IRegisterForm> = () => {
     dispatch(registerUser()).then((action) => {
       if (action.meta.requestStatus === "rejected") return;
+
       dispatch(setOTPConfirm(true));
+
       nav("confirmation");
     });
   };

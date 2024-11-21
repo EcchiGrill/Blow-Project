@@ -23,7 +23,10 @@ const NavContent = ({ setOpen }: { setOpen?: useStateSetter<boolean> }) => {
   return (
     <div className="flex h-full flex-col bg-primary text-secondary lg:border-r lg:border-secondary">
       <div className="flex h-14 items-center border-b border-secondary px-4">
-        <NavLink className="flex items-center gap-2 font-semibold" to="/">
+        <NavLink
+          className="flex items-center gap-2 font-semibold text-secondary-title"
+          to="/"
+        >
           <Fan className="h-6 w-6" />
           <span>Blow Project</span>
         </NavLink>

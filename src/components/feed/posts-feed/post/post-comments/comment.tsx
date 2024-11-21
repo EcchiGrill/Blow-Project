@@ -14,6 +14,7 @@ import {
 import { createToast } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/store/lib/store-hooks";
 import { fetchComments, updateCommentLikes } from "@/store/slices/posts-slice";
+import { useNavigate } from "react-router-dom";
 
 function Comment({
   comment,
@@ -24,6 +25,7 @@ function Comment({
   activeComments: FetchedCommentsType;
 }) {
   const [timemark, setTimemark] = useState("");
+  const nav = useNavigate();
 
   useInterval(() => {
     setTimemark(getAgoDate(comment.timestamp));
@@ -62,18 +64,32 @@ function Comment({
 
   return (
     <div className="flex space-x-4">
-      <Avatar>
-        <AvatarImage src={comment.avatar} alt={comment.author} />
-        <AvatarFallback>{comment.author}</AvatarFallback>
+      <Avatar
+        onClick={() => nav(`/profile/${comment.link!}`)}
+        className="cursor-pointer"
+      >
+        <AvatarImage src={comment.avatar} alt={comment.username} />
+        <AvatarFallback>{comment.username}</AvatarFallback>
       </Avatar>
       <div className="flex-1 space-y-1">
         <div className="flex items-center justify-between">
-          <h4 className="font-semibold">{comment.author}</h4>
+          <h4 className="font-semibold">{comment.username}</h4>
           <span className="text-sm text-primary">{timemark}</span>
         </div>
-        <p className="w-[60vw] xs:w-[70vw] sm:w-[60vw] 2xl:w-[27vw] 3xl:w-[36vh] break-words">
-          {comment.content}
-        </p>
+        {comment.content && (
+          <p className="w-[60vw] xs:w-[70vw] sm:w-[60vw] 2xl:w-[27vw] 3xl:w-[36vh] break-words">
+            {comment.content}
+          </p>
+        )}
+        {comment.image && (
+          <div className="grid grid-cols-2 gap-y-3 mt-4 gap-x-4">
+            {comment.image.map((src) => (
+              <div className="mt-1 flex place-items-center" key={src}>
+                <img src={src} className="h-full max-h-64" />
+              </div>
+            ))}
+          </div>
+        )}
         <div className="flex items-center text-sm text-primary">
           <Button
             variant={`${
@@ -84,7 +100,7 @@ function Comment({
             onClick={() => handleCommentLike(comment.id, comment.likes)}
           >
             <ThumbsUp className="h-4 w-4 mr-1" />
-            {comment.likes}
+            <span className="mt-0.5"> {comment.likes}</span>
           </Button>
         </div>
       </div>

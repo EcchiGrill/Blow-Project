@@ -7,6 +7,8 @@ import { useProfile } from "@/lib/hooks/useProfile";
 import { useEffect } from "react";
 import { fetchProfilePage } from "@/store/slices/profile-slice";
 import { useUser } from "@/lib/hooks/useUser";
+import { usePosts } from "@/lib/hooks/usePosts";
+import { fetchPosts } from "@/store/slices/posts-slice";
 
 function Profile() {
   const { userlink } = useParams();
@@ -14,18 +16,22 @@ function Profile() {
   const {
     dispatch,
     status,
-    bio,
+    profileBio,
+    profileLocation,
     profileName,
     createdAt,
     error,
     avatar,
-    location,
+    uid,
   } = useProfile();
 
-  const { link } = useUser();
+  const { link, fullName, bio, myLocation, username } = useUser();
+
+  const { posts } = usePosts();
 
   useEffect(() => {
     dispatch(fetchProfilePage(userlink));
+    dispatch(fetchPosts());
   }, [dispatch, userlink]);
 
   return !error ? (
@@ -35,14 +41,17 @@ function Profile() {
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="activity">Activity</TabsTrigger>
         </TabsList>
-        <TabsContent value="profile">
+        <TabsContent value="profile" style={{ outline: 0 }}>
           <ProfileInfo
             status={status!}
             avatar={avatar!}
-            profileName={profileName!}
-            bio={bio!}
-            location={location!}
-            link={userlink!}
+            profileName={userlink === link ? username : profileName!}
+            profileUID={uid}
+            fullName={userlink === link ? fullName : ""}
+            profilePosts={posts?.filter((post) => post.author === uid)}
+            bio={userlink === link ? bio : profileBio!}
+            location={userlink === link ? myLocation : profileLocation!}
+            link={userlink || link}
             createdAt={createdAt!}
             isLocked={userlink !== link}
           />

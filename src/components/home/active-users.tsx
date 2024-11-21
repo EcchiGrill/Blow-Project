@@ -1,13 +1,14 @@
 import { usePosts } from "@/lib/hooks/usePosts";
 import { Card, CardContent } from "../ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { POST_AVATAR_PLACEHOLDER } from "@/lib/constants";
 import { ILeaderboard } from "@/lib/types";
+import { useNavigate } from "react-router-dom";
 
 function ActiveUsers() {
   const { posts } = usePosts();
+  const nav = useNavigate();
 
-  const getRecentPosts = () => {
+  const getLeaderboard = () => {
     const users: Set<string> = new Set();
     posts?.map((post) => users.add(post.author!));
     const unique = [...users].slice(0, 6);
@@ -16,13 +17,11 @@ function ActiveUsers() {
 
     unique.map((user) => {
       leaders.push({
-        avatar: posts!.map((post) => {
-          if (post.author === user && post.author) {
-            return post.avatar;
-          }
-          return POST_AVATAR_PLACEHOLDER;
-        })[0]!,
-        username: user,
+        avatar: posts?.find((post) => post.author === user)?.avatar,
+        username: posts?.find((post) => post.author === user)?.username,
+
+        link: posts?.find((post) => post.author === user)?.link,
+
         posts: posts!.filter((post) => post.author === user).length,
       });
     });
@@ -37,11 +36,14 @@ function ActiveUsers() {
           Most Active Users
         </h2>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {getRecentPosts().map((user, i) => (
+          {getLeaderboard().map((user, i) => (
             <Card key={i}>
               <CardContent className="flex items-center p-6">
                 <div className="flex items-center space-x-4">
-                  <Avatar>
+                  <Avatar
+                    onClick={() => nav(`/profile/${user.link!}`)}
+                    className="cursor-pointer mb-0.5"
+                  >
                     <AvatarImage src={user.avatar} />
                     <AvatarFallback>{user.username}</AvatarFallback>
                   </Avatar>
