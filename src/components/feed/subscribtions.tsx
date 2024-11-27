@@ -5,9 +5,9 @@ import { createToast } from "@/lib/utils";
 
 function Subscribtions({ className }: { className?: string }) {
   const subscribtions = [
-    { id: 1, name: "Tech News Daily", subscribers: "50K" },
-    { id: 2, name: "Web Dev Tutorials", subscribers: "75K" },
-    { id: 3, name: "Coding Tips & Tricks", subscribers: "100K" },
+    { id: 1, name: "EcchiGrill", subscribers: "50K" },
+    { id: 2, name: "Blow Project", subscribers: "75K" },
+    { id: 3, name: "Perfumest", subscribers: "100K" },
   ];
 
   return (

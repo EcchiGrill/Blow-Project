@@ -15,11 +15,14 @@ import { useState } from "react";
 import { FileWithPath, useDropzone } from "react-dropzone";
 import EditorTools from "./editor-tools";
 import { usePosts } from "@/lib/hooks/usePosts";
+import { checkNSFW } from "@/lib/utils";
 
 function PostEditor({ title, content }: { title: string; content: string }) {
   const dispatch = useAppDispatch();
 
-  const { handleCreate, isPosting } = usePosts();
+  const [isPosting, setPosting] = useState(false);
+
+  const { handleCreate } = usePosts();
 
   const [height, setHeight] = useState("");
 
@@ -55,8 +58,33 @@ function PostEditor({ title, content }: { title: string; content: string }) {
       </CardHeader>
       <CardContent>
         <form
-          onSubmit={(e) => {
-            handleCreate(e, images, setImages);
+          onSubmit={async (e) => {
+            e.preventDefault();
+
+            if (images.length) {
+              const imgs = images.map((image) => {
+                const img = new Image();
+                img.src = image;
+
+                return img;
+              });
+
+              await Promise.all(
+                imgs.map(async (img) => {
+                  const isNSFW = await checkNSFW(img, setPosting);
+                  return isNSFW;
+                })
+              ).then((result) =>
+                handleCreate(
+                  images,
+                  setImages,
+                  setPosting,
+                  result.includes(true)
+                )
+              );
+            } else {
+              handleCreate(images, setImages, setPosting);
+            }
           }}
         >
           <Input

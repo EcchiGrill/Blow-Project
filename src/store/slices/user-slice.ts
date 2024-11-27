@@ -2,14 +2,13 @@ import { handleFulfill } from "../lib/store-utils";
 import { PayloadAction } from "@reduxjs/toolkit";
 import supabase from "@/supabase/supabase-client";
 import { createSlice, getError, getUser } from "../lib/store-utils";
-import { createToast } from "@/lib/utils";
-import { IUser, SessionType } from "@/lib/types";
+import { createToast, getShortDesc } from "@/lib/utils";
+import { FetchedActivitiesType, IUser, SessionType } from "@/lib/types";
 import { User } from "@/supabase/db.types";
 import { Session, UserMetadata } from "@supabase/supabase-js";
 import { AVATAR_EXPIRE, AVATAR_PLACEHOLDER } from "@/lib/constants";
 
 const initialState: IUser = {
-  activeUsers: [],
   isLogged: false,
   data: {
     uid: "",
@@ -18,6 +17,8 @@ const initialState: IUser = {
     username: "",
     email: "",
     password: "",
+    activity: [],
+    friends: [],
     likedPosts: [],
     likedComments: [],
     location: "",
@@ -81,6 +82,8 @@ export const userSlice = createSlice({
                 link: user.data.username.toLowerCase(),
                 likedPosts: user.data.likedPosts,
                 likedComments: user.data.likedComments,
+                friends: user.data.friends,
+                activity: user.data.activity,
               },
               captchaToken: user.captcha,
             },
@@ -250,6 +253,7 @@ export const userSlice = createSlice({
 
           return {
             uid: data.user.id,
+            email: data.user.email,
             user: data.user.user_metadata,
             created_at: data.user.created_at,
           } as User;
@@ -272,6 +276,184 @@ export const userSlice = createSlice({
           state.isLogged = false;
 
           getError<IUser>(state, action);
+        },
+      }
+    ),
+
+    getResetLink: create.asyncThunk(
+      async (email: string, { getState, rejectWithValue }) => {
+        try {
+          const { user } = getState() as {
+            user: IUser;
+          };
+
+          if (!user.captcha)
+            throw new Error("Don't forget to complete Captcha!");
+
+          const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            captchaToken: user.captcha,
+            redirectTo: "https://blow-project.com/reset-password",
+          });
+
+          if (error) {
+            throw new Error(error.message);
+          }
+        } catch (error) {
+          return rejectWithValue(error);
+        }
+      },
+
+      {
+        fulfilled: (state) => {
+          handleFulfill(state);
+          createToast({
+            text: "Reset link sent to ur email!",
+            icon: "🟢",
+            color: "green",
+            pos: "top-center",
+          });
+        },
+
+        pending: (state) => {
+          state.maintain.status = "pending";
+        },
+
+        rejected: (state, action) => {
+          getError<IUser>(state, action);
+          createToast({
+            text: `${state.UIError}`,
+            icon: "🔴",
+            color: "red",
+            pos: "top-center",
+          });
+        },
+      }
+    ),
+
+    updateEmail: create.asyncThunk(
+      async (email: string, { rejectWithValue }) => {
+        try {
+          const { error } = await supabase.auth.updateUser({
+            email,
+          });
+
+          if (error) {
+            throw new Error(error.message);
+          }
+        } catch (error) {
+          return rejectWithValue(error);
+        }
+      },
+
+      {
+        fulfilled: (state) => {
+          handleFulfill(state);
+          createToast({
+            text: "Confirmation link sent to ur new email!",
+            icon: "🟢",
+            color: "green",
+            pos: "top-center",
+          });
+        },
+
+        pending: (state) => {
+          state.maintain.status = "pending";
+        },
+
+        rejected: (state, action) => {
+          getError<IUser>(state, action);
+          createToast({
+            text: `${state.UIError}`,
+            icon: "🔴",
+            color: "red",
+            pos: "top-center",
+          });
+        },
+      }
+    ),
+
+    updatePassword: create.asyncThunk(
+      async (password: string, { rejectWithValue }) => {
+        try {
+          const { error } = await supabase.auth.updateUser({
+            password,
+          });
+
+          if (error) {
+            throw new Error(error.message);
+          }
+        } catch (error) {
+          return rejectWithValue(error);
+        }
+      },
+
+      {
+        fulfilled: (state) => {
+          handleFulfill(state);
+          createToast({
+            text: "Successfully updated password!",
+            icon: "🟢",
+            color: "green",
+            pos: "top-center",
+          });
+        },
+
+        pending: (state) => {
+          state.maintain.status = "pending";
+        },
+
+        rejected: (state, action) => {
+          getError<IUser>(state, action);
+          createToast({
+            text: `${state.UIError}`,
+            icon: "🔴",
+            color: "red",
+            pos: "top-center",
+          });
+        },
+      }
+    ),
+
+    resetPassword: create.asyncThunk(
+      async (password: string, { rejectWithValue }) => {
+        try {
+          const { error } = await supabase.auth.updateUser({
+            password,
+          });
+
+          if (error) {
+            throw new Error(error.message);
+          }
+        } catch (error) {
+          return rejectWithValue(error);
+        }
+      },
+
+      {
+        fulfilled: (state) => {
+          handleFulfill(state);
+          state.isReset = false;
+
+          createToast({
+            text: "Now login with your new password!",
+            icon: "🟢",
+            color: "green",
+            pos: "top-center",
+          });
+        },
+
+        pending: (state) => {
+          state.maintain.status = "pending";
+        },
+
+        rejected: (state, action) => {
+          getError<IUser>(state, action);
+          createToast({
+            text: `${state.UIError}`,
+            icon: "🔴",
+            color: "red",
+            pos: "top-center",
+          });
         },
       }
     ),
@@ -304,6 +486,8 @@ export const userSlice = createSlice({
           state.data.location = "";
           state.data.bio = "";
           state.data.link = "";
+          state.data.friends = [];
+          state.data.activity = [];
           state.data.likedComments = [];
           state.data.likedPosts = [];
 
@@ -333,31 +517,60 @@ export const userSlice = createSlice({
     updateUsername: create.asyncThunk(
       async (
         { username, uid }: { username: string; uid: string },
-        { rejectWithValue }
+        { getState, rejectWithValue }
       ) => {
         try {
-          const { data, error } = await supabase.auth.updateUser({
-            data: { username },
+          const { user } = getState() as {
+            user: IUser;
+          };
+
+          const activity = [...user.data.activity]
+            .sort(
+              (a, b) =>
+                new Date(b.timemark).getTime() - new Date(a.timemark).getTime()
+            )
+            .slice(0, 9);
+
+          activity.push({
+            type: "username",
+            msg: `Rebranded from '${user.data.username}' to '${username}'`,
+            timemark: new Date().toISOString(),
           });
 
-          await supabase
+          const { data, error } = await supabase
             .from("profiles")
-            .update({ username: data.user?.user_metadata.username })
+            .update({ username, activity })
             .eq("uid", uid)
             .select();
 
-          if (error) throw new Error(error.message);
+          if (error || !data) {
+            throw new Error(error.message);
+          }
 
-          return data.user.user_metadata.username;
+          await supabase.auth.updateUser({
+            data: {
+              username: data[0]!.username,
+              activity,
+            },
+          });
+
+          return { username: data[0].username, activity };
         } catch (error) {
           return rejectWithValue(error);
         }
       },
 
       {
-        fulfilled: (state, action: PayloadAction<string>) => {
+        fulfilled: (
+          state,
+          action: PayloadAction<{
+            username: string;
+            activity: FetchedActivitiesType;
+          }>
+        ) => {
           handleFulfill(state);
-          state.data.username = action.payload;
+          state.data.username = action.payload.username;
+          state.data.activity = action.payload.activity;
         },
 
         pending: (state) => {
@@ -366,6 +579,12 @@ export const userSlice = createSlice({
 
         rejected: (state, action) => {
           getError<IUser>(state, action);
+          createToast({
+            text: `${state.UIError}`,
+            icon: "🔴",
+            color: "red",
+            pos: "top-center",
+          });
         },
       }
     ),
@@ -410,58 +629,39 @@ export const userSlice = createSlice({
       }
     ),
 
-    updateStatus: create.asyncThunk(
-      async (status: "Active" | "Inactive", { getState, rejectWithValue }) => {
+    updateBio: create.asyncThunk(
+      async (
+        { bio, uid }: { bio: string; uid: string },
+        { getState, rejectWithValue }
+      ) => {
         try {
           const { user } = getState() as {
             user: IUser;
           };
 
-          const { data, error } = await supabase
-            .from("profiles")
-            .update({ status: status })
-            .eq("uid", user.data.uid)
-            .select();
+          const activity = [...user.data.activity]
+            .sort(
+              (a, b) =>
+                new Date(b.timemark).getTime() - new Date(a.timemark).getTime()
+            )
+            .slice(0, 9);
 
-          if (error) throw new Error(error.message);
+          activity.push({
+            type: "bio",
+            msg: `Now proudly blowing with '${getShortDesc(bio, 25)}'`,
+            timemark: new Date().toISOString(),
+          });
 
-          return data![0].status;
-        } catch (error) {
-          return rejectWithValue(error);
-        }
-      },
-
-      {
-        fulfilled: (state, action: PayloadAction<"Active" | "Inactive">) => {
-          handleFulfill(state);
-          state.data.status = action.payload;
-        },
-
-        pending: (state) => {
-          state.maintain.status = "pending";
-        },
-
-        rejected: (state, action) => {
-          getError<IUser>(state, action);
-        },
-      }
-    ),
-
-    updateBio: create.asyncThunk(
-      async (
-        { bio, uid }: { bio: string; uid: string },
-        { rejectWithValue }
-      ) => {
-        try {
           const { data, error } = await supabase.auth.updateUser({
             data: {
-              bio: bio,
+              bio,
+              activity,
             },
           });
 
           await supabase
             .from("profiles")
-            .update({ bio: data.user?.user_metadata.bio })
+            .update({ bio: data.user?.user_metadata.bio, activity })
             .eq("uid", uid)
             .select();
 
@@ -478,7 +678,8 @@ export const userSlice = createSlice({
       {
         fulfilled: (state, action: PayloadAction<UserMetadata>) => {
           handleFulfill(state);
-          state.data.bio = action.payload.user.bio;
+          state.data.bio = action.payload.bio;
+          state.data.activity = action.payload.activity;
         },
 
         pending: (state) => {
@@ -500,35 +701,60 @@ export const userSlice = createSlice({
     updateLink: create.asyncThunk(
       async (
         { link, uid }: { link: string | undefined; uid: string },
-        { rejectWithValue }
+        { getState, rejectWithValue }
       ) => {
         try {
-          const { data, error } = await supabase.auth.updateUser({
-            data: {
-              link: link,
-            },
+          const { user } = getState() as {
+            user: IUser;
+          };
+
+          const activity = [...user.data.activity]
+            .sort(
+              (a, b) =>
+                new Date(b.timemark).getTime() - new Date(a.timemark).getTime()
+            )
+            .slice(0, 9);
+
+          activity.push({
+            type: "link",
+            msg: `Redirected to 'blow-project/profile/${link}'`,
+            timemark: new Date().toISOString(),
           });
 
-          await supabase
+          const { data, error } = await supabase
             .from("profiles")
-            .update({ link: data.user?.user_metadata.link })
+            .update({ link: link, activity })
             .eq("uid", uid)
             .select();
 
-          if (error) {
+          if (error || !data) {
             throw new Error(error.message);
           }
 
-          return data.user.user_metadata;
+          await supabase.auth.updateUser({
+            data: {
+              link: data[0]!.link,
+              activity,
+            },
+          });
+
+          return { link: data[0].link, activity };
         } catch (error) {
           return rejectWithValue(error);
         }
       },
 
       {
-        fulfilled: (state, action: PayloadAction<UserMetadata>) => {
+        fulfilled: (
+          state,
+          action: PayloadAction<{
+            link: string;
+            activity: FetchedActivitiesType;
+          }>
+        ) => {
           handleFulfill(state);
-          state.data.link = action.payload[0].link;
+          state.data.link = action.payload.link;
+          state.data.activity = action.payload.activity;
         },
 
         pending: (state) => {
@@ -550,18 +776,36 @@ export const userSlice = createSlice({
     updateLocation: create.asyncThunk(
       async (
         { location, uid }: { location: string; uid: string },
-        { rejectWithValue }
+        { getState, rejectWithValue }
       ) => {
         try {
+          const { user } = getState() as {
+            user: IUser;
+          };
+
+          const activity = [...user.data.activity]
+            .sort(
+              (a, b) =>
+                new Date(b.timemark).getTime() - new Date(a.timemark).getTime()
+            )
+            .slice(0, 9);
+
+          activity.push({
+            type: "location",
+            msg: `Relocated to ${location}`,
+            timemark: new Date().toISOString(),
+          });
+
           const { data, error } = await supabase.auth.updateUser({
             data: {
-              location: location,
+              location,
+              activity,
             },
           });
 
           await supabase
             .from("profiles")
-            .update({ location: data.user?.user_metadata.location })
+            .update({ location: data.user?.user_metadata.location, activity })
             .eq("uid", uid)
             .select();
 
@@ -578,7 +822,8 @@ export const userSlice = createSlice({
       {
         fulfilled: (state, action: PayloadAction<UserMetadata>) => {
           handleFulfill(state);
-          state.data.location = action.payload[0].location;
+          state.data.location = action.payload.location;
+          state.data.activity = action.payload.activity;
         },
 
         pending: (state) => {
@@ -600,31 +845,46 @@ export const userSlice = createSlice({
     uploadAvatar: create.asyncThunk(
       async (file: File, { getState, rejectWithValue }) => {
         try {
-          debugger;
           const { user } = getState() as {
             user: IUser;
           };
 
           const avatarLink = `private/${user.data.uid}.png`;
 
-          await supabase.storage.from("profile_pics").upload(avatarLink, file, {
-            cacheControl: "3600",
-            upsert: true,
-          });
+          const { error } = await supabase.storage
+            .from("profile_pics")
+            .upload(avatarLink, file, {
+              cacheControl: "3600",
+              upsert: true,
+            });
 
-          const { data, error } = await supabase.storage
+          const { data } = await supabase.storage
             .from("profile_pics")
             .createSignedUrl(avatarLink, AVATAR_EXPIRE);
 
+          const activity = [...user.data.activity]
+            .sort(
+              (a, b) =>
+                new Date(b.timemark).getTime() - new Date(a.timemark).getTime()
+            )
+            .slice(0, 9);
+
+          activity.push({
+            type: "avatar",
+            msg: "Updated profile picture",
+            timemark: new Date().toISOString(),
+          });
+
           await supabase
             .from("profiles")
-            .update({ avatar: data?.signedUrl })
+            .update({ avatar: data?.signedUrl, activity })
             .eq("uid", user.data.uid)
             .select();
 
           await supabase.auth.updateUser({
             data: {
               avatar: data?.signedUrl,
+              activity,
             },
           });
 
@@ -632,16 +892,23 @@ export const userSlice = createSlice({
             throw new Error(error.message);
           }
 
-          return data?.signedUrl;
+          return { url: data?.signedUrl, activity };
         } catch (error) {
           return rejectWithValue(error);
         }
       },
 
       {
-        fulfilled: (state, action: PayloadAction<string>) => {
+        fulfilled: (
+          state,
+          action: PayloadAction<{
+            url: string | undefined;
+            activity: FetchedActivitiesType;
+          }>
+        ) => {
           handleFulfill(state);
-          state.data.avatar = action.payload;
+          state.data.avatar = action.payload.url;
+          state.data.activity = action.payload.activity;
         },
 
         pending: (state) => {
@@ -650,6 +917,63 @@ export const userSlice = createSlice({
 
         rejected: (state, action) => {
           getError<IUser>(state, action);
+          createToast({
+            text: `${state.UIError}`,
+            icon: "🔴",
+            color: "red",
+            pos: "top-center",
+          });
+        },
+      }
+    ),
+
+    updateFriends: create.asyncThunk(
+      async (friends: string[], { getState, rejectWithValue }) => {
+        try {
+          const { user } = getState() as {
+            user: IUser;
+          };
+
+          const { data, error } = await supabase.auth.updateUser({
+            data: {
+              friends,
+            },
+          });
+
+          await supabase
+            .from("profiles")
+            .update({ friends: data.user?.user_metadata.friends })
+            .eq("uid", user.data.uid)
+            .select();
+
+          if (error) {
+            throw new Error(error.message);
+          }
+
+          return data.user.user_metadata;
+        } catch (error) {
+          return rejectWithValue(error);
+        }
+      },
+
+      {
+        fulfilled: (state, action: PayloadAction<UserMetadata>) => {
+          handleFulfill(state);
+          state.data.friends = action.payload.friends;
+        },
+
+        pending: (state) => {
+          state.maintain.status = "pending";
+        },
+
+        rejected: (state, action) => {
+          getError<IUser>(state, action);
+          createToast({
+            text: `${state.UIError}`,
+            icon: "🔴",
+            color: "red",
+            pos: "top-center",
+          });
         },
       }
     ),
@@ -701,7 +1025,6 @@ export const userSlice = createSlice({
     ),
 
     setLink: create.reducer((state, action: PayloadAction<string>) => {
-      debugger;
       return {
         ...state,
         data: {
@@ -752,15 +1075,6 @@ export const userSlice = createSlice({
       };
     }),
 
-    setActiveUsers: create.reducer(
-      (state, action: PayloadAction<unknown[]>) => {
-        return {
-          ...state,
-          activeUsers: action.payload,
-        };
-      }
-    ),
-
     setFullname: create.reducer((state, action: PayloadAction<string>) => {
       return {
         ...state,
@@ -780,6 +1094,18 @@ export const userSlice = createSlice({
         },
       };
     }),
+
+    setActivity: create.reducer(
+      (state, action: PayloadAction<FetchedActivitiesType>) => {
+        return {
+          ...state,
+          data: {
+            ...state.data,
+            activity: action.payload,
+          },
+        };
+      }
+    ),
 
     setEmail: create.reducer((state, action: PayloadAction<string>) => {
       return {
@@ -824,14 +1150,32 @@ export const userSlice = createSlice({
       };
     }),
 
-    setRemember: create.reducer(
-      (state, action: PayloadAction<boolean | "indeterminate">) => {
-        return {
-          ...state,
-          remember: action.payload,
-        };
-      }
-    ),
+    setPending: create.reducer((state, action: PayloadAction<boolean>) => {
+      return {
+        ...state,
+        maintain: {
+          ...state.maintain,
+          status: action.payload ? "pending" : "fulfilled",
+        },
+      };
+    }),
+
+    setReset: create.reducer((state, action: PayloadAction<boolean>) => {
+      return {
+        ...state,
+        isReset: action.payload,
+      };
+    }),
+
+    setFriends: create.reducer((state, action: PayloadAction<string[]>) => {
+      return {
+        ...state,
+        data: {
+          ...state.data,
+          friends: action.payload,
+        },
+      };
+    }),
   }),
 
   selectors: {
@@ -852,13 +1196,13 @@ export const userSlice = createSlice({
       state.maintain.status === "pending" ? true : false,
     selectLikedPosts: (state) => state.data.likedPosts,
     selectLikedComments: (state) => state.data.likedComments,
-    selectStatus: (state) => state.data.status,
-    selectActiveUsers: (state) => state.activeUsers,
     selectBio: (state) => state.data.bio,
     selectLocation: (state) => state.data.location,
     selectLink: (state) => state.data.link,
     selectAvatar: (state) => state.data.avatar,
-    selectRemember: (state) => state.data.remember,
+    selectFriends: (state) => state.data.friends,
+    selectActivity: (state) => state.data.activity,
+    selectReset: (state) => state.isReset,
   },
 });
 
@@ -879,13 +1223,13 @@ export const {
   selectOTP,
   selectLikedPosts,
   selectLikedComments,
-  selectStatus,
-  selectActiveUsers,
   selectLocation,
   selectBio,
   selectLink,
   selectAvatar,
-  selectRemember,
+  selectFriends,
+  selectActivity,
+  selectReset,
 } = userSlice.selectors;
 export const {
   loginUser,
@@ -906,8 +1250,6 @@ export const {
   addLikedComment,
   removeLikedComment,
   signOut,
-  updateStatus,
-  setActiveUsers,
   setBio,
   setLocation,
   updateBio,
@@ -915,9 +1257,17 @@ export const {
   updateLink,
   updateLocation,
   setLink,
-  setRemember,
   updateUsername,
   updateFullname,
+  updateFriends,
+  setFriends,
+  setPending,
+  updateEmail,
+  updatePassword,
+  setActivity,
+  getResetLink,
+  setReset,
+  resetPassword,
 } = userSlice.actions;
 
 export default userSlice.reducer;

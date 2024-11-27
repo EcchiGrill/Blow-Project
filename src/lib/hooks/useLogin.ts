@@ -19,7 +19,9 @@ export const useLogin = () => {
   const passwordError = errors["password"]?.message;
 
   const loginHandler: SubmitHandler<ILoginForm> = () => {
-    dispatch(loginUser()).then(() => {
+    dispatch(loginUser()).then(({ meta }) => {
+      if (meta.requestStatus === "rejected") return;
+
       if (!tabsBefore) {
         nav("/");
       } else {

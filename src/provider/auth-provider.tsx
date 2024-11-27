@@ -5,24 +5,23 @@ import { useAppDispatch, useAppSelector } from "@/store/lib/store-hooks";
 import {
   fetchUser,
   selectLogged,
-  selectRemember,
+  setReset,
   setSession,
 } from "@/store/slices/user-slice";
+import { fetchProfiles } from "@/store/slices/profile-slice";
 
 function AuthProvider({ children }: PropsWithChildren) {
   const dispatch = useAppDispatch();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, setSessionCookie, deleteSessionCookie] = useCookie("session");
 
-  const remember = useAppSelector(selectRemember);
   const isLogged = useAppSelector(selectLogged);
 
   useEffect(() => {
     supabase.auth
       .getSession()
       .then(({ data }) => {
-        if (!remember && !isLogged)
-          setSessionCookie(data.session?.access_token || "");
+        if (!isLogged) setSessionCookie(data.session?.access_token || "");
 
         dispatch(
           setSession({
@@ -31,9 +30,14 @@ function AuthProvider({ children }: PropsWithChildren) {
           })
         );
 
-        if (data.session) dispatch(fetchUser());
+        if (data.session) {
+          dispatch(fetchUser());
+          dispatch(setReset(true));
+        }
 
-        supabase.auth.onAuthStateChange((_, session) => {
+        dispatch(fetchProfiles());
+
+        supabase.auth.onAuthStateChange(async (_, session) => {
           setSessionCookie(session?.access_token || "");
           if (!session) deleteSessionCookie();
           dispatch(

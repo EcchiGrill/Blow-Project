@@ -28,7 +28,7 @@ function RecentPosts() {
   };
 
   return (
-    <section className="w-full py-12 md:py-24 lg:py-32">
+    <section className="w-full py-12 md:py-24 lg:py-32 ">
       <div className="container px-4 md:px-6">
         <h2 className="text-3xl font-bold tracking-tighter text-secondary sm:text-4xl md:text-5xl mb-8">
           Recent Posts
@@ -37,12 +37,12 @@ function RecentPosts() {
           <p className="text-lg mb-5 text-center text-error">{error}</p>
         )}
         {recentPosts && (
-          <>
+          <div className="flex flex-col place-items-center">
             <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {recentPosts.map((post) => (
                 <Card
                   key={post.id}
-                  className="flex flex-col xl:w-72 h-[22rem] relative"
+                  className="flex flex-col w-72 h-[22rem] relative"
                 >
                   <CardHeader className="pb-4">
                     <CardTitle className="break-words">{post.title}</CardTitle>
@@ -110,7 +110,7 @@ function RecentPosts() {
                 </Button>
               </Link>
             </div>
-          </>
+          </div>
         )}
       </div>
     </section>

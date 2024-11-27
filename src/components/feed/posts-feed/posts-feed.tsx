@@ -6,6 +6,7 @@ import { FetchedPostsType } from "@/lib/types";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CornerDownRight } from "lucide-react";
+import supabase from "@/supabase/supabase-client";
 
 function PostsFeed({
   posts,
@@ -82,18 +83,28 @@ function PostsFeed({
           )
       );
     }
-  }, [posts, isPending, postlink]); // eslint-disable-line
+  }, [posts, isPending, postlink, postsCount]);
 
   useEffect(() => {
     dispatch(fetchPosts());
     if (activeId) dispatch(fetchComments());
+    supabase
+      .channel("posts-changes")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "posts" },
+        () => {
+          dispatch(fetchPosts());
+        }
+      )
+      .subscribe();
   }, [dispatch, activeId]);
 
   return (
-    <>
+    <div>
       {error && <p className="text-lg mt-4 text-center text-error">{error}</p>}
       {posts && <div className="mt-6 space-y-6">{getPosts}</div>}
-    </>
+    </div>
   );
 }
 export default PostsFeed;

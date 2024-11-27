@@ -13,25 +13,31 @@ import Register from "./components/auth/register";
 import { useUser } from "./lib/hooks/useUser";
 import ErrorBoundary from "./components/404/error-boundary";
 import MyProfile from "./components/profile/my-profile";
+import ResetPassword from "./components/reset-password";
 
 function App() {
   const location = useLocation();
-  const { isBackToLogin, isOTPConfirm } = useUser();
+  const { isBackToLogin, isOTPConfirm, isLogged, isReset } = useUser();
 
   const routes = [
     {
       path: "/",
       element: Home,
-      children: { path: "login", element: Login, condition: true },
+      children: [
+        { path: "login", element: Login, condition: true },
+        { path: "reset-password", element: ResetPassword, condition: true },
+      ],
     },
     {
       path: "register",
       element: Register,
-      children: {
-        path: "confirmation",
-        element: OTPConfirm,
-        condition: isOTPConfirm,
-      },
+      children: [
+        {
+          path: "confirmation",
+          element: OTPConfirm,
+          condition: isOTPConfirm,
+        },
+      ],
     },
     { path: "feed", element: Feed },
     { path: "/feed/:postlink", element: Feed },
@@ -44,6 +50,10 @@ function App() {
   const isLogin =
     (location.state && location.state.login) || location.pathname === "/login";
 
+  const isResetting =
+    (location.state && location.state.reset) ||
+    location.pathname === "/reset-password";
+
   const isRegister =
     (location.state && location.state.register) ||
     location.pathname === "/register" ||
@@ -55,9 +65,13 @@ function App() {
 
   return (
     <>
-      <div className="grid h-full max-lg:w-screen lg:grid-cols-1/10fr">
+      <div className="grid h-full max-lg:w-screen lg:grid-cols-1/10fr ">
         <NavMenu />
-        <Routes location={isRegister || isLogin || isConfirm || location}>
+        <Routes
+          location={
+            isRegister || isLogin || isResetting || isConfirm || location
+          }
+        >
           {routes.map((route) => {
             return (
               <Route
@@ -65,22 +79,34 @@ function App() {
                 path={`${route.path}`}
                 element={<route.element />}
               >
-                {route.children && route.children.condition && (
-                  <Route
-                    path={`${route.children.path}`}
-                    element={<route.children.element />}
-                  />
-                )}
+                {route.children &&
+                  route.children.map(
+                    (r) =>
+                      r.condition && (
+                        <Route
+                          key={r.path}
+                          path={`${r.path}`}
+                          element={<r.element />}
+                        />
+                      )
+                  )}
               </Route>
             );
           })}
         </Routes>
-        {isLogin && (
+
+        {isResetting && isReset && (
+          <Routes>
+            <Route path="reset-password" element={<ResetPassword />} />
+          </Routes>
+        )}
+
+        {isLogin && !isLogged && (
           <Routes>
             <Route path="login" element={<Login />} />
           </Routes>
         )}
-        {(isRegister || isConfirm) && (
+        {(isRegister || isConfirm) && !isLogged && (
           <Routes>
             <Route path="register" element={<Register />}>
               {isOTPConfirm && (

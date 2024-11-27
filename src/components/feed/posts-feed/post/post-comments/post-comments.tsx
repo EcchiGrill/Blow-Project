@@ -20,6 +20,7 @@ import { FileWithPath, useDropzone } from "react-dropzone";
 import { useState } from "react";
 import { LoaderIcon, XIcon } from "lucide-react";
 import { usePosts } from "@/lib/hooks/usePosts";
+import { checkNSFW } from "@/lib/utils";
 
 function PostComments({ postId }: { postId: number }) {
   const dispatch = useAppDispatch();
@@ -28,10 +29,12 @@ function PostComments({ postId }: { postId: number }) {
   const activeId = useAppSelector(selectActivePostId);
   const commentContent = useAppSelector(selectCommentContent);
 
+  const [isSending, setSending] = useState(false);
+
   const [height, setHeight] = useState("");
   const [images, setImages] = useState<string[]>([]);
 
-  const { handleCommentSubmit, isPending, isSending } = usePosts();
+  const { handleCommentSubmit, isPending } = usePosts();
 
   const onDrop = (acceptedFiles: FileWithPath[]) => {
     if (acceptedFiles) {
@@ -76,9 +79,33 @@ function PostComments({ postId }: { postId: number }) {
         <CardFooter>
           <form
             className="w-full space-y-4"
-            onSubmit={(e) => {
-              handleCommentSubmit(e, images, setImages);
-              setImages([]);
+            onSubmit={async (e) => {
+              e.preventDefault();
+
+              if (images.length) {
+                const imgs = images.map((image) => {
+                  const img = new Image();
+                  img.src = image;
+
+                  return img;
+                });
+
+                await Promise.all(
+                  imgs.map(async (img) => {
+                    const isNSFW = await checkNSFW(img, setSending);
+                    return isNSFW;
+                  })
+                ).then((result) => {
+                  handleCommentSubmit(
+                    images,
+                    setImages,
+                    setSending,
+                    result.includes(true)
+                  );
+                });
+              } else {
+                handleCommentSubmit(images, setImages, setSending);
+              }
             }}
           >
             <div

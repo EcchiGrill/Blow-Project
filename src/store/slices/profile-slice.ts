@@ -1,10 +1,11 @@
-import { getProfile, handleFulfill } from "../lib/store-utils";
+import { handleFulfill } from "../lib/store-utils";
 import { PayloadAction } from "@reduxjs/toolkit";
 import supabase from "@/supabase/supabase-client";
 import { createSlice, getError } from "../lib/store-utils";
-import { FetchedProfileType, IProfile } from "@/lib/types";
+import { FetchedProfilesType, IProfile } from "@/lib/types";
 
 const initialState: IProfile = {
+  fetchedProfiles: [],
   data: {},
   maintain: {},
 };
@@ -13,17 +14,12 @@ export const profileSlice = createSlice({
   name: "profile",
   initialState,
   reducers: (create) => ({
-    fetchProfilePage: create.asyncThunk(
-      async (userUrl: string | undefined, { rejectWithValue }) => {
+    fetchProfiles: create.asyncThunk(
+      async (_, { rejectWithValue }) => {
         try {
-          if (!userUrl) throw new Error();
+          const { data, error } = await supabase.from("profiles").select();
 
-          const { data } = await supabase
-            .from("profiles")
-            .select()
-            .eq("link", userUrl);
-
-          if (!data || !data[0]) throw new Error("User not found!");
+          if (error) throw new Error();
 
           return data;
         } catch (error) {
@@ -32,9 +28,9 @@ export const profileSlice = createSlice({
       },
 
       {
-        fulfilled: (state, action: PayloadAction<FetchedProfileType>) => {
+        fulfilled: (state, action: PayloadAction<FetchedProfilesType>) => {
           handleFulfill(state);
-          getProfile(state, action.payload);
+          state.fetchedProfiles = action.payload;
         },
 
         pending: (state) => {
@@ -46,22 +42,52 @@ export const profileSlice = createSlice({
         },
       }
     ),
+
+    fetchProfilePage: create.reducer(
+      (state, action: PayloadAction<string | undefined>) => {
+        const filtered = state.fetchedProfiles.find(
+          (profile) => profile.link === action.payload
+        );
+
+        if (!filtered)
+          return {
+            ...state,
+            UIError: "Profile not found",
+          };
+
+        return {
+          ...state,
+          data: {
+            ...state.data,
+            uid: filtered.uid,
+            location: filtered.location,
+            avatar: filtered.avatar,
+            profileName: filtered.username,
+            bio: filtered.bio,
+            createdAt: filtered.created_at,
+            link: filtered.link,
+            profileActivity: filtered.activity,
+          },
+        };
+      }
+    ),
   }),
 
   selectors: {
     selectProfileAvatar: (state) => state.data.avatar,
-    selectProfileStatus: (state) => state.data.status,
     selectProfileName: (state) => state.data.profileName,
     selectProfileCreatedAt: (state) => state.data.createdAt,
     selectProfileBio: (state) => state.data.bio,
     selectProfileLocation: (state) => state.data.location,
     selectProfileError: (state) => state.UIError,
     selectProfileUID: (state) => state.data.uid,
+    selectPending: (state) => state.maintain.status === "pending",
+    selectProfiles: (state) => state.fetchedProfiles,
+    selectProfileActivity: (state) => state.data.profileActivity,
   },
 });
 
 export const {
-  selectProfileStatus,
   selectProfileName,
   selectProfileCreatedAt,
   selectProfileBio,
@@ -69,7 +95,10 @@ export const {
   selectProfileError,
   selectProfileAvatar,
   selectProfileUID,
+  selectPending,
+  selectProfiles,
+  selectProfileActivity,
 } = profileSlice.selectors;
-export const { fetchProfilePage } = profileSlice.actions;
+export const { fetchProfiles, fetchProfilePage } = profileSlice.actions;
 
 export default profileSlice.reducer;

@@ -25,7 +25,6 @@ import {
   selectLogged,
 } from "@/store/slices/user-slice";
 import { CLOUDINARY_KEY } from "../constants";
-import { FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export const usePosts = () => {
@@ -43,10 +42,6 @@ export const usePosts = () => {
   const isLogged = useAppSelector(selectLogged);
 
   const nav = useNavigate();
-
-  const [isPosting, setPosting] = useState(false);
-
-  const [isSending, setSending] = useState(false);
 
   const updatePosts = (f: AsyncFnType<unknown>) =>
     f().then(() => dispatch(fetchPosts()));
@@ -76,12 +71,11 @@ export const usePosts = () => {
   };
 
   const handleCreate = (
-    e: FormEvent,
     images: string[],
-    setImages: useStateSetter<string[]>
+    setImages: useStateSetter<string[]>,
+    setPosting: useStateSetter<boolean>,
+    isNSFW?: boolean
   ) => {
-    e.preventDefault();
-
     if (!isLogged) {
       createToast({
         text: "Login first!",
@@ -92,7 +86,20 @@ export const usePosts = () => {
       return;
     }
 
-    if ((!content || !title.trim()) && !images.length) {
+    if (isNSFW) {
+      createToast({
+        text: `Hold up your pic my friend!`,
+        icon: "🕵️",
+        color: "black",
+        pos: "top-center",
+      });
+      return;
+    }
+
+    if (
+      (!title.trim() || !content.trim()) &&
+      (!title.trim() || !images.length)
+    ) {
       createToast({
         text: "Fill all the fields!",
         icon: "🔴",
@@ -135,17 +142,26 @@ export const usePosts = () => {
   };
 
   const handleCommentSubmit = async (
-    e: FormEvent,
     images: string[],
-    setImages: useStateSetter<string[]>
+    setImages: useStateSetter<string[]>,
+    setSending: useStateSetter<boolean>,
+    isNSFW?: boolean
   ) => {
-    e.preventDefault();
-
     if (!isLogged) {
       createToast({
         text: "Login first!",
         icon: "🔴",
         color: "red",
+        pos: "top-center",
+      });
+      return;
+    }
+
+    if (isNSFW) {
+      createToast({
+        text: `Hold up your pic my friend!`,
+        icon: "🕵️",
+        color: "black",
         pos: "top-center",
       });
       return;
@@ -202,7 +218,7 @@ export const usePosts = () => {
       createToast({ text: "Post liked!", icon: "❤️", color: "red" });
     } else {
       const dislike = async () =>
-        dispatch(updatePostLikes({ id: id, likes: likes - 1 })).then();
+        dispatch(updatePostLikes({ id: id, likes: likes - 1 }));
 
       dispatch(removeLikedPost(id));
       updatePosts(dislike);
@@ -224,7 +240,5 @@ export const usePosts = () => {
     activeId,
     likedPosts,
     handleCommentSubmit,
-    isPosting,
-    isSending,
   };
 };

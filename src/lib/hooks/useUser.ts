@@ -14,10 +14,12 @@ import {
   selectUserError,
   selectUsername,
   selectBio,
-  selectStatus,
   selectAvatar,
   selectLink,
   selectLocation,
+  selectFriends,
+  selectActivity,
+  selectReset,
 } from "@/store/slices/user-slice";
 import { useAppDispatch, useAppSelector } from "@/store/lib/store-hooks";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
@@ -40,47 +42,14 @@ export const useUser = () => {
   const uid = useAppSelector(selectUID);
   const link = useAppSelector(selectLink);
   const likedPosts = useAppSelector(selectLikedPosts);
-  const status = useAppSelector(selectStatus);
   const bio = useAppSelector(selectBio);
   const avatar = useAppSelector(selectAvatar);
   const myLocation = useAppSelector(selectLocation);
+  const friendsUID = useAppSelector(selectFriends);
+  const activity = useAppSelector(selectActivity);
+  const isReset = useAppSelector(selectReset);
 
-  // const [activeUsers, setActiveUsers] = useState<unknown[]>();
   const captchaRef = useRef<HCaptcha>(null);
-
-  //ACTIVITY Soon..
-
-  // const isIdle = useIdle(IDLE_TIME);
-
-  // useEffect(() => {
-  //   const activity = supabase.channel("activity", {
-  //     config: { private: true },
-  //   });
-
-  //   activity.on("presence", { event: "sync" }, () => {
-  //     const users = new Set();
-  //     for (const key in activity.presenceState()) {
-  //       //@ts-expect-error link
-  //       users.add(activity.presenceState()[key][0].link);
-  //     }
-
-  //     // setActiveUsers([...users]);
-  //   });
-
-  //   activity.subscribe(async (status) => {
-  //     if (status === "SUBSCRIBED") {
-  //       activity.track({ link });
-  //     }
-  //   });
-
-  //   if (isIdle) {
-  //     activity.unsubscribe();
-  //   }
-
-  //   return () => {
-  //     activity.unsubscribe();
-  //   };
-  // }, [dispatch, isIdle, link, activeUsers]);
 
   return {
     dispatch,
@@ -99,10 +68,12 @@ export const useUser = () => {
     createdAt,
     otp,
     likedPosts,
-    status,
     bio,
     link,
     avatar,
     myLocation,
+    friendsUID,
+    activity,
+    isReset,
   };
 };

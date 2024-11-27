@@ -101,18 +101,48 @@ export const postsSlice = createSlice({
             user: IUser;
           };
 
-          const { error } = await supabase.from("posts").insert([
-            {
-              author: user.data.uid,
-              title: posts.insertPost?.title,
-              content: posts.insertPost?.content,
-              image: image,
-            },
-          ]);
+          const { data, error } = await supabase
+            .from("posts")
+            .insert([
+              {
+                author: user.data.uid,
+                title: posts.insertPost?.title,
+                content: posts.insertPost?.content,
+                image: image,
+              },
+            ])
+            .select();
 
-          if (error) {
+          if (!data || error) {
             throw new Error(error.message);
           }
+
+          const activity = [...user.data.activity]
+            .sort(
+              (a, b) =>
+                new Date(b.timemark).getTime() - new Date(a.timemark).getTime()
+            )
+            .slice(0, 9);
+
+          activity.push({
+            type: "post",
+            msg: `Published a new post`,
+            post_title: data[0].title!,
+            post_link: data[0].id.toString(),
+            timemark: new Date().toISOString(),
+          });
+
+          await supabase
+            .from("profiles")
+            .update({ activity })
+            .eq("uid", user.data.uid)
+            .select();
+
+          await supabase.auth.updateUser({
+            data: {
+              activity,
+            },
+          });
         } catch (error) {
           return rejectWithValue(error);
         }
@@ -294,6 +324,37 @@ export const postsSlice = createSlice({
             posts: IPosts;
             user: IUser;
           };
+
+          const selectedPost = posts.fetchedPosts?.find(
+            (p) => p.id === posts.comments.activePostId
+          );
+
+          const activity = [...user.data.activity]
+            .sort(
+              (a, b) =>
+                new Date(b.timemark).getTime() - new Date(a.timemark).getTime()
+            )
+            .slice(0, 9);
+
+          activity.push({
+            type: "comment",
+            msg: `Commented on`,
+            post_title: selectedPost?.title!,
+            post_link: selectedPost?.id.toString(),
+            timemark: new Date().toISOString(),
+          });
+
+          await supabase
+            .from("profiles")
+            .update({ activity })
+            .eq("uid", user.data.uid)
+            .select();
+
+          await supabase.auth.updateUser({
+            data: {
+              activity,
+            },
+          });
 
           if (!posts.comments.activePostId) throw new Error();
 

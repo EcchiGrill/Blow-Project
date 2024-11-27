@@ -56,7 +56,7 @@ function Register() {
 
   return !isOTPConfirm ? (
     <AuthContainer nav={nav}>
-      <Card className="mx-5 w-full max-w-md z-10 bg-secondary-muted border-none">
+      <Card className="mx-5 w-full max-w-sm z-10 bg-secondary-muted border-none">
         <CardHeader>
           <a
             className="w-min cursor-pointer hover:rotate-12 transition duration-300"

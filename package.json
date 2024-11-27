@@ -2,7 +2,7 @@
   "name": "blow-project",
   "author": "EcchiGrill",
   "private": true,
-  "version": "0.2.4",
+  "version": "0.3.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -48,6 +48,7 @@
     "eslint-plugin-react-refresh": "^0.4.9",
     "globals": "^15.9.0",
     "lucide-react": "^0.441.0",
+    "nsfwjs": "^4.2.1",
     "postcss": "^8.4.47",
     "react-dropzone": "^14.3.5",
     "react-hook-form": "^7.53.0",

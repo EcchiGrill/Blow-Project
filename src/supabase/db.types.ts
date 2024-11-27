@@ -8,14 +8,28 @@ export type Json =
 
 export type User = {
   uid: string;
+  email: string;
   user: {
-    email: string;
     username: string;
     full_name: string;
     avatar: string;
     bio: string;
+    friends: string[];
     location: string;
     link: string;
+    activity: {
+      type:
+        | "username"
+        | "avatar"
+        | "bio"
+        | "link"
+        | "location"
+        | "post"
+        | "comment";
+      msg: string;
+      timemark: string;
+      post_link?: string;
+    }[];
     likedPosts: number[];
     likedComments: string[];
   };
@@ -90,33 +104,74 @@ export type Database = {
           created_at: string;
           full_name: string;
           uid: string;
-          status: "Active" | "Inactive";
           username: string;
+          friends: string[];
           link: string;
           avatar: string;
           location: string;
+          activity: {
+            type:
+              | "username"
+              | "avatar"
+              | "bio"
+              | "link"
+              | "location"
+              | "post"
+              | "comment";
+            msg: string;
+            timemark: string;
+            post_title?: string;
+            post_link?: string;
+          }[];
         };
         Insert: {
           bio?: string;
           created_at?: string;
           full_name?: string;
           uid?: string;
-          status?: "Active" | "Inactive";
           username?: string;
+          friends?: string[];
           link?: string;
           avatar?: string;
           location?: string;
+          activity?: {
+            type:
+              | "username"
+              | "avatar"
+              | "bio"
+              | "link"
+              | "location"
+              | "post"
+              | "comment";
+            msg: string;
+            timemark: string;
+            post_link?: string;
+          }[];
         };
         Update: {
           bio?: string;
           created_at?: string;
           full_name?: string;
           uid?: string;
-          status?: "Active" | "Inactive";
           username?: string;
+          friends?: string[];
           link?: string;
           avatar?: string;
           location?: string;
+          activity?: {
+            type:
+              | "username"
+              | "avatar"
+              | "bio"
+              | "link"
+              | "location"
+              | "post"
+              | "comment";
+            msg: string;
+            timemark: string;
+            post_title?: string;
+            post_link?: string;
+          }[];
         };
         Relationships: [];
       };

@@ -17,6 +17,10 @@ export function getFetchedProfileType(db: Database) {
   return db.public.Tables.profiles.Row;
 }
 
+export function getFetchedActivitiesType(db: Database) {
+  return db.public.Tables.profiles.Row.activity;
+}
+
 export type FetchedPostType = ReturnType<typeof getFetchedPostType>;
 
 export type FetchedPostsType = FetchedPostType[];
@@ -25,7 +29,11 @@ export type FetchedCommentsType = ReturnType<typeof getFetchedCommentsType>;
 
 export type FetchedCommentType = FetchedCommentsType[0];
 
-export type FetchedProfileType = ReturnType<typeof getFetchedProfileType>[];
+export type FetchedActivitiesType = ReturnType<typeof getFetchedActivitiesType>;
+
+export type FetchedActivityType = FetchedActivitiesType[0];
+
+export type FetchedProfilesType = ReturnType<typeof getFetchedProfileType>[];
 
 export type ErrorType = PostgrestError | null;
 
@@ -83,15 +91,16 @@ export interface IPosts {
 type UserData = {
   uid: string;
   otp?: string;
-  remember?: boolean | "indeterminate";
   session?: Session | null;
   email_verified?: boolean;
   created_at?: string;
-  avatar: string;
+  avatar: string | undefined;
   username: string;
   fullName: string;
   email: string;
   password: string;
+  activity: FetchedActivitiesType;
+  friends: string[];
   likedPosts: number[];
   likedComments: string[];
   bio: string;
@@ -101,8 +110,8 @@ type UserData = {
 };
 
 export interface IUser {
-  activeUsers: unknown[];
   isLogged?: boolean;
+  isReset?: boolean;
   UIError?: UIErrorType;
   data: UserData;
   maintain: MaintainType;
@@ -114,16 +123,17 @@ export interface IUser {
 type ProfileData = {
   uid?: string;
   avatar?: string;
-  status?: "Active" | "Inactive";
   profileName?: string;
   createdAt?: string;
   bio?: string;
   link?: string;
   location?: string;
+  profileActivity?: FetchedActivitiesType;
   profilePosts?: FetchedPostsType | null;
 };
 
 export interface IProfile {
+  fetchedProfiles: FetchedProfilesType;
   UIError?: UIErrorType;
   data: ProfileData;
   maintain: MaintainType;
@@ -133,7 +143,6 @@ export type AsyncFnType<T> = () => Promise<T>;
 
 export interface ProfileProps {
   avatar: string;
-  status: string;
   profileName: string;
   fullName: string;
   createdAt: string;
@@ -151,7 +160,7 @@ export interface NavItemProps {
   to: string;
   onClick?: React.MouseEventHandler;
   state?: {
-    login: Location;
+    login: Location<any>;
   };
 }
 
@@ -195,4 +204,7 @@ export interface IProfileInfo {
   isMorePosts: boolean;
   link: string;
   profileName: string;
+  fullName: string;
+  bio: string;
+  location: string;
 }

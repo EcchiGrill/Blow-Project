@@ -1,10 +1,4 @@
-import {
-  ErrorType,
-  FetchedProfileType,
-  IProfile,
-  IUser,
-  StatusHandlingType,
-} from "@/lib/types";
+import { ErrorType, IUser, StatusHandlingType } from "@/lib/types";
 import {
   asyncThunkCreator,
   buildCreateSlice,
@@ -22,16 +16,18 @@ export const getUser = (state: IUser, fetched: User) => {
     user: {
       username,
       full_name,
-      email,
       avatar,
       bio,
       location,
       link,
       likedPosts,
       likedComments,
+      friends,
+      activity,
     },
     uid,
     created_at,
+    email,
   } = fetched;
 
   state.data.uid = uid;
@@ -43,27 +39,15 @@ export const getUser = (state: IUser, fetched: User) => {
   state.data.bio = bio || "";
   state.data.location = location || "";
   state.data.link = link || username.toLowerCase();
-
   state.data.created_at = created_at;
+
+  state.data.activity = activity || [];
+  state.data.friends = friends || [];
   state.data.likedPosts = likedPosts || [];
   state.data.likedComments = likedComments || [];
   state.data.password = "";
   state.captcha = "";
   state.data.otp = "";
-};
-
-export const getProfile = (state: IProfile, fetched: FetchedProfileType) => {
-  const { username, bio, status, created_at, link, avatar, location, uid } =
-    fetched[0];
-
-  state.data.uid = uid;
-  state.data.location = location;
-  state.data.avatar = avatar;
-  state.data.profileName = username;
-  state.data.bio = bio;
-  state.data.status = status;
-  state.data.createdAt = created_at;
-  state.data.link = link;
 };
 
 export const handleFulfill = (state: StatusHandlingType) => {
@@ -77,7 +61,6 @@ export const getError = <I extends StatusHandlingType>(
   action: unknown
 ) => {
   const error = (action as PayloadAction<ErrorType>).payload;
-
   state.UIError = error!.message;
   state.maintain.error = error;
   state.maintain.status = "rejected";

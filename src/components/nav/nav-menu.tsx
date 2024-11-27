@@ -16,7 +16,7 @@ function NavMenu() {
   return (
     <>
       <aside className="hidden min-h-screen w-64 lg:block">
-        <NavContent setOpen={setOpen} />
+        <NavContent setNavOpen={setOpen} />
       </aside>
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTitle className="sr-only">Menu</SheetTitle>
@@ -32,7 +32,7 @@ function NavMenu() {
         </SheetTrigger>
         <SheetContent className="w-64 p-0" side="left">
           <SheetDescription className="hidden" />
-          <NavContent setOpen={setOpen} />
+          <NavContent setNavOpen={setOpen} />
         </SheetContent>
       </Sheet>
     </>
